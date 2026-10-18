@@ -64,7 +64,6 @@
     orderLeadTime: [L.orderLeadTime, "כמה זמן מראש להזמין"],
     delivery: [L.delivery, "תנאי איסוף ומשלוח"],
     deliveryFee: [L.deliveryFee, "עלות משלוח"],
-    dataRetention: [L.dataRetention, "כמה זמן נשמרות התכתבויות"],
     pickupAccessibility: [L.pickupAccessibility, "נגישות מקום האיסוף"],
     policyDate: [L.policyDate, "תאריך עדכון"]
   };

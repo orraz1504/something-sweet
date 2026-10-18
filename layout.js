@@ -35,7 +35,7 @@
     svg.setAttribute("aria-hidden", "true");
     svg.setAttribute("focusable", "false");
     var use = document.createElementNS(ns, "use");
-    use.setAttribute("href", "icons.svg#" + id);
+    use.setAttribute("href", "#" + id);
     svg.appendChild(use);
     return svg;
   }
@@ -108,6 +108,12 @@
     }
   });
 
+  // pickup location links – hidden when there is no map link in data.js
+  document.querySelectorAll("[data-map]").forEach(function (a) {
+    if (B.pickupMap) a.href = B.pickupMap;
+    else (a.closest("[data-map-wrap]") || a).remove();
+  });
+
   // WhatsApp links written in the HTML
   document.querySelectorAll("[data-wa]").forEach(function (a) {
     a.href = waLink(a.getAttribute("data-wa"));
@@ -124,6 +130,7 @@
       item("i-insta", el("a", { href: "https://instagram.com/" + B.instagram, target: "_blank", rel: "noopener", text: "אינסטגרם: @" + B.instagram }));
     }
     item("i-pin", el("span", { text: "איסוף ומשלוחים: " + B.area }));
+    if (B.pickupMap) item("i-pin", el("a", { href: B.pickupMap, target: "_blank", rel: "noopener", text: "מיקום לאיסוף במפה" }));
     item("i-clock", el("span", { text: B.hours }));
   }
 

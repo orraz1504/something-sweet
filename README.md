@@ -17,7 +17,7 @@
 | `privacy.html` | מדיניות פרטיות |
 | `accessibility.html` | הצהרת נגישות |
 | `layout.js` | תחתית העמוד והפרטים המשותפים לכל העמודים (לא צריך לגעת) |
-| `icons.svg`, `fonts/`, `fonts.css` | אייקונים וגופנים (מאוחסנים באתר עצמו) |
+| `fonts/`, `fonts.css` | גופנים (מאוחסנים באתר עצמו) |
 | `favicon.png` | האייקון בלשונית הדפדפן |
 | `images/logo.webp` | הלוגו (המקור נמצא ב-`images/originals/logo.jpg`) |
 | `images/products/` | תמונות המוצרים |

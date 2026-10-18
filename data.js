@@ -13,10 +13,12 @@
  *  איך מוסיפים שורת מחיר?
  *    מעתיקים שורה קיימת (כולל הפסיק בסוף) ומדביקים מתחתיה.
  *
- *  איך מוסיפים מוצר לגלריה?
+ *  איך מוסיפים מוצר?
  *    1. מעלים תמונה לתיקייה images/products (שם באנגלית, למשל cake.webp).
- *    2. מוסיפים שורה ברשימה products:
- *         { name: "שם המוצר", image: "cake.webp" },
+ *    2. מעתיקים מוצר קיים ברשימה products ומשנים את השם, התמונה והמחירים.
+ *
+ *  מוצר בלי מחיר קבוע ("מחיר בתיאום"): כותבים priceOnRequest: true
+ *  ובאפשרויות לא כותבים price.
  *
  *  איך מורידים משהו?
  *    מוחקים את כל השורה שלו (מ- { ועד }, כולל הפסיק).
@@ -39,6 +41,7 @@ const SITE = {
     instagram: "",                      // שם משתמש באינסטגרם (בלי @). ריק = לא מוצג
     location: "אלון מורה",
     area: "אלון מורה והסביבה",
+    pickupMap: "https://maps.app.goo.gl/v7R2AZDDgrmJAq8A8",   // קישור למיקום האיסוף בגוגל מפות. ריק = לא מוצג
     hours: "פתוח 24/6 · לא בשבת",
     // טקסט "אודות" – כל שורה ברשימה היא פסקה
     about: [
@@ -66,118 +69,99 @@ const SITE = {
     policyDate: "18.10.2026" // תאריך עדכון אחרון של עמודי המדיניות וההצהרה
   },
 
-  // ---------- גלריית המוצרים ----------
-  // image = שם הקובץ בתיקייה images/products
+  // ---------- המוצרים ----------
+  // לחיצה על תמונה פותחת כרטיס מוצר עם האפשרויות, ומשם מוסיפים לסל.
+  //   images   – תמונה אחת או יותר מהתיקייה images/products
+  //   options  – גדלים / כמויות. כל אחת עם name ו-price (מספר, בלי ₪)
+  //              label = תווית ורודה (למשל "מבצע")
+  //   flavors  – רשימת טעמים לבחירה (לא חובה). flavorsTitle = הכותרת שלה
+  //   flavorImages – איזו תמונה להציג לכל טעם (לא חובה)
+  //   image (בתוך אפשרות) – איזו תמונה להציג כשבוחרים את האפשרות (לא חובה)
+  //   priceOnRequest: true – בלי מחיר קבוע; נכנס לסל "לתיאום מחיר"
+  //   note     – שורת הסבר קטנה בכרטיס (לא חובה)
+  //   box: true – המוצר "מארזים": הכרטיס מוביל להרכבת מארז
   products: [
-    { name: "טריקולד",           image: "tricolad.webp" },
-    { name: "שמרים",             image: "shmarim.webp" },
-    { name: "גבינה פירורים",     image: "cheesecake-crumble.webp" },
-    { name: "לב גבינה",          image: "cheese-heart.webp" },
-    { name: "מוס ריבת חלב",      image: "dulce-mousse.webp" },
-    { name: "קראמבל קוקיז",      image: "crumbl-cookies.webp" },
-    { name: "אמסטרדם",           image: "amsterdam.webp" },
-    { name: "פחזניות",           image: "profiteroles.webp" },
-    { name: "בראוניז",           image: "brownies.webp" },
-    { name: "אלפחורס",           image: "alfajores.webp" },
-    { name: "שוקולד צ'יפס",      image: "chocolate-chip.webp" },
-    { name: "מארזים",            image: "boxes.webp" },
-    { name: "קאפקייקס ממותגים",  image: "branded-cupcakes.webp" },
-    { name: "טארטלטים",          image: "tartlets.webp" },
-    { name: "קינוחי כוסות",      image: "cup-desserts.webp" },
-    { name: "כדורי שוקולד",      image: "chocolate-balls.webp" }
+    { name: "טריקולד", images: ["tricolad.webp"],
+      options: [
+        { name: "פס", price: 100 },
+        { name: "עיגול קוטר 20", price: 200 },
+        { name: "עיגול קוטר 26", price: 300 }
+      ] },
+    { name: "שמרים", images: ["shmarim.webp"],
+      options: [
+        { name: "פס", price: 45 }
+      ] },
+    { name: "עוגת גבינה פירורים", images: ["cheesecake-crumble.webp", "cheese-heart.webp"],
+      options: [
+        { name: "לב זוגי", price: 40, image: "cheese-heart.webp" },
+        { name: "פס", price: 70 },
+        { name: "עיגול קוטר 20", price: 140 },
+        { name: "עיגול קוטר 26", price: 210 }
+      ] },
+    { name: "פאי פקאן / שוקולד", images: ["pecan-pie.webp", "chocolate-pie.webp"],
+      flavorsTitle: "טעם", flavors: ["פקאן", "שוקולד"],
+      flavorImages: { "פקאן": "pecan-pie.webp", "שוקולד": "chocolate-pie.webp" },
+      options: [
+        { name: "עיגול קוטר 24", price: 75 },
+        { name: "2 יחידות", price: 140, label: "מבצע" }
+      ] },
+    { name: "מוס ריבת חלב", images: ["dulce-mousse.webp"],
+      options: [
+        { name: "פס", price: 100 },
+        { name: "עיגול קוטר 20", price: 200 },
+        { name: "עיגול קוטר 26", price: 300 }
+      ] },
+    { name: "קראמבל קוקיז", images: ["crumbl-cookies.webp"],
+      flavorsTitle: "טעם", flavors: ["פיסטוק", "קינדר", "עדשים", "רפאלו", "קורנפלקס"],
+      options: [
+        { name: "עוגייה אחת", price: 13 }
+      ] },
+    { name: "אמסטרדם", images: ["amsterdam.webp"],
+      options: [
+        { name: "10 יחידות", price: 45 },
+        { name: "20 יחידות", price: 85 }
+      ] },
+    { name: "פחזניות", images: ["profiteroles.webp"],
+      options: [
+        { name: "10 יחידות", price: 50 }
+      ] },
+    { name: "בראוניז", images: ["brownies.webp"],
+      options: [
+        { name: "10 יחידות", price: 45 },
+        { name: "20 יחידות", price: 85 }
+      ] },
+    { name: "אלפחורס", images: ["alfajores.webp"],
+      options: [
+        { name: "10 יחידות", price: 45 },
+        { name: "20 יחידות", price: 85 }
+      ] },
+    { name: "שוקולד צ'יפס", images: ["chocolate-chip.webp"],
+      options: [
+        { name: "10 יחידות", price: 45 },
+        { name: "20 יחידות", price: 85 }
+      ] },
+    { name: "מארזים", images: ["boxes.webp"], box: true },
+    { name: "קאפקייקס ממותגים", images: ["branded-cupcakes.webp"], priceOnRequest: true,
+      note: "המחיר לפי כמות – נתאם בוואטסאפ." },
+    { name: "טארטלטים", images: ["tartlets.webp"], priceOnRequest: true,
+      flavorsTitle: "טעם", flavors: ["שוקולד", "פקאן"],
+      note: "המחיר לפי כמות – נתאם בוואטסאפ." },
+    { name: "קינוחי כוסות", images: ["cup-desserts.webp"], priceOnRequest: true,
+      flavorsTitle: "טעם", flavors: ["לוטוס", "אוראו", "פקאן וקפה", "פיסטוק", "גבינה פירורים", "קינדר"],
+      note: "לוטוס, אוראו, פקאן וקפה ופיסטוק – בפרווה או בחלבי. גבינה פירורים וקינדר – בחלבי. המחיר לפי כמות – נתאם בוואטסאפ." },
+    { name: "כדורי שוקולד", images: ["chocolate-balls.webp"], priceOnRequest: true,
+      note: "המחיר לפי כמות – נתאם בוואטסאפ." }
   ],
 
-  // ---------- המחירון ----------
-  // column: 1 = עמודה ראשונה, 2 = עמודה שנייה (במחשב)
-  // deco: "pin" = סיכה, "tape" = נייר דבק, "" = בלי קישוט
-  // כל כרטיס מכיל groups (קבוצות), וכל קבוצה מכילה items (שורות מחיר).
-  // label = תווית ורודה מודגשת לפני השם (למשל "מבצע")
-  // note = שורת טקסט בלי מחיר
-  priceCards: [
-    {
-      column: 1, deco: "",
-      groups: [
-        { title: "עוגות שוות", big: true, subtitle: "טריקולד · מוס ריבת חלב",
-          items: [
-            { name: "פס", price: 100 },
-            { name: "עיגול קוטר 20", price: 200 },
-            { name: "עיגול קוטר 26", price: 300 }
-          ] },
-        { title: "שמרים",
-          items: [
-            { name: "פס", price: 45 }
-          ] },
-        { title: "פאי פקאן / שוקולד",
-          items: [
-            { name: "עיגול קוטר 24", price: 75 },
-            { label: "מבצע", name: "2 יחידות", price: 140 }
-          ] }
-      ]
-    },
-    {
-      column: 2, deco: "pin",
-      groups: [
-        { title: "עוגיות", big: true, subtitle: "אלפחורס · אמסטרדם · שוקולד צ'יפס · בראוניז",
-          items: [
-            { name: "10 יחידות", price: 45 },
-            { name: "20 יחידות", price: 85 }
-          ] },
-        { title: "פחזניות",
-          items: [
-            { name: "10 יחידות", price: 50 }
-          ] },
-        { title: "קראמבל קוקיז",
-          items: [
-            { name: "ליחידה", price: 13 }
-          ] }
-      ]
-    },
-    {
-      column: 1, deco: "tape",
-      groups: [
-        { title: "עוגת גבינה פירורים", big: true,
-          items: [
-            { name: "לב זוגי", price: 40 },
-            { name: "פס", price: 70 },
-            { name: "עיגול קוטר 20", price: 140 },
-            { name: "עיגול קוטר 26", price: 210 }
-          ] }
-      ]
-    },
-    {
-      column: 2, deco: "",
-      groups: [
-        { title: "מנות אחרונות", big: true,
-          items: [
-            { name: "קינוחי כוסות", heading: true },
-            { note: "לוטוס · אוראו · פקאן וקפה · פיסטוק", tag: "פרווה וחלבי:" },
-            { note: "גבינה פירורים · קינדר", tag: "חלבי:" },
-            { name: "קינוחים אישיים", heading: true },
-            { note: "סופלה · קראמבל תפוחים · טארטלטים שוקולד/פקאן" }
-          ] },
-        { footnote: "פנו בפרטי לכמויות ופרטים :)" }
-      ]
-    },
-    {
-      column: 1, deco: "",
-      groups: [
-        { title: "מארזים", big: true,
-          items: [
-            { name: "מארז בינוני", price: 130 },
-            { name: "מארז גדול", price: 230 }
-          ] },
-        { footnote: "פנו לפרטים והתאמה אישית" }
-      ]
-    },
-    {
-      column: 2, deco: "",
-      groups: [
-        { title: "הדפסה על דפים", big: true, subtitle: "דפי סוכר · דפי טרנספר",
-          items: [
-            { name: "דף בגודל A4", price: 40 }
-          ] }
-      ]
-    }
+  // ---------- עוד אצלנו (מוצרים בלי תמונה) ----------
+  extras: [
+    { name: "הדפסה על דפים", flavorsTitle: "סוג הדף", flavors: ["דף סוכר", "דף טרנספר"],
+      options: [
+        { name: "דף בגודל A4", price: 40 }
+      ] },
+    { name: "קינוחים אישיים", priceOnRequest: true,
+      flavorsTitle: "קינוח", flavors: ["סופלה", "קראמבל תפוחים"],
+      note: "המחיר לפי כמות – נתאם בוואטסאפ." }
   ],
 
   // ---------- המארזים ----------

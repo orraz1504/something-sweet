@@ -322,8 +322,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   font: .95rem var(--font-round);
   color: var(--pink);
 }
-.hero-photo { margin: 0; justify-self: center; width: min(88%, 420px); }
+.hero-photo { margin: 0; justify-self: center; width: min(84%, 380px); }
 .polaroid-hero { transform: rotate(2deg); }
+.polaroid-hero .ph { aspect-ratio: 3 / 4; }
 
 @media (min-width: 860px) {
   .hero { padding: 56px 0 72px; }

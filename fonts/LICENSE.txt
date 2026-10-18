@@ -1,0 +1,6 @@
+Fonts used on the site, self-hosted from Google Fonts.
+All are licensed under the SIL Open Font License 1.1 (free for commercial use):
+- Karantina – https://fonts.google.com/specimen/Karantina
+- Rubik – https://fonts.google.com/specimen/Rubik
+- Varela Round – https://fonts.google.com/specimen/Varela+Round
+License text: https://openfontlicense.org/open-font-license-official-text/

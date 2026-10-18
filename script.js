@@ -2,47 +2,9 @@
 (function () {
   "use strict";
 
-  document.documentElement.classList.add("js");
-
   var B = SITE.business;
   var IMG_DIR = "images/products/";
-
-  // ---------- helpers ----------
-  function el(tag, attrs, children) {
-    var node = document.createElement(tag);
-    if (attrs) {
-      Object.keys(attrs).forEach(function (k) {
-        var v = attrs[k];
-        if (v == null || v === false) return;
-        if (k === "class") node.className = v;
-        else if (k === "text") node.textContent = v;
-        else if (k === "style") node.setAttribute("style", v);
-        else node.setAttribute(k, v);
-      });
-    }
-    (children || []).forEach(function (c) {
-      if (c == null) return;
-      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
-    });
-    return node;
-  }
-
-  function svgUse(id, cls) {
-    var ns = "http://www.w3.org/2000/svg";
-    var svg = document.createElementNS(ns, "svg");
-    svg.setAttribute("class", cls || "icon");
-    svg.setAttribute("aria-hidden", "true");
-    var use = document.createElementNS(ns, "use");
-    use.setAttribute("href", "#" + id);
-    svg.appendChild(use);
-    return svg;
-  }
-
-  function waLink(message) {
-    return "https://wa.me/" + B.whatsapp + "?text=" + encodeURIComponent(message);
-  }
-
-  function shekel(n) { return n + " ₪"; }
+  var el = Sweet.el, svgUse = Sweet.svgUse, waLink = Sweet.waLink, shekel = Sweet.shekel;
 
   // Shows the photo if it loads, otherwise keeps the pink placeholder (no broken image).
   function watchImage(img) {
@@ -72,11 +34,6 @@
     holder.appendChild(img);
     return holder;
   }
-
-  // ---------- WhatsApp links already in the HTML ----------
-  document.querySelectorAll("[data-wa]").forEach(function (a) {
-    a.href = waLink(a.getAttribute("data-wa"));
-  });
 
   // hero image fallback
   document.querySelectorAll(".hero img").forEach(watchImage);
@@ -197,6 +154,14 @@
     cols[card.column === 2 ? 1 : 0].appendChild(note);
   });
 
+  // "by ordering you agree to the order policy" line, shown next to order buttons
+  function termsNote() {
+    return el("p", { class: "terms-note" }, [
+      "בהזמנה את/ה מסכים/ה ל",
+      el("a", { href: "orders.html", text: "מדיניות ההזמנות והביטולים" })
+    ]);
+  }
+
   // ---------- Boxes ----------
   var boxList = document.getElementById("box-list");
 
@@ -214,8 +179,9 @@
   }
 
   SITE.boxes.forEach(function (box, i) {
+    var titleId = "box-title-" + box.id;
     var label = el("figcaption", { class: "polaroid-label" }, [
-      el("span", { class: "box-name", text: box.name }),
+      el("h3", { class: "box-name", id: titleId, text: box.name }),
       el("span", { class: "price", text: shekel(box.price) })
     ]);
     var fig = el("figure", { class: "box-photo" + (box.imageShape === "tall" ? " tall" : ""), style: "--rot:" + (i % 2 ? 1.5 : -1.5) + "deg" }, [
@@ -237,12 +203,13 @@
       class: "btn btn-whatsapp btn-lg",
       href: waLink("היי! אשמח להזמין " + box.name + " (" + shekel(box.price) + ") 🎁"),
       target: "_blank",
-      rel: "noopener"
+      rel: "noopener",
+      "aria-describedby": titleId
     }, [svgUse("i-whatsapp"), "להזמין את המארז"]);
     var buildBtn = el("a", {
       class: "btn btn-outline", href: "#builder", "data-size": box.id,
-      "aria-controls": "builder", "aria-expanded": "false"
-    }, ["להרכבת המארז ←"]);
+      "aria-controls": "builder", "aria-expanded": "false", "aria-describedby": titleId
+    }, ["להרכבת המארז ", el("span", { "aria-hidden": "true", text: "←" })]);
     buildBtn.addEventListener("click", function (e) {
       e.preventDefault();
       openBuilder(box.id);
@@ -250,8 +217,8 @@
 
     boxList.appendChild(el("article", {
       class: "box-card box-" + box.id + " reveal",
-      "aria-label": box.name + " – " + shekel(box.price)
-    }, [fig, info, el("div", { class: "box-actions" }, [orderBtn, " ", buildBtn])]));
+      "aria-labelledby": titleId
+    }, [fig, info, el("div", { class: "box-actions" }, [orderBtn, " ", buildBtn, termsNote()])]));
   });
 
   // ---------- Build your box ----------
@@ -382,52 +349,5 @@
 
   renderBoxOptions();
 
-  // ---------- Contact ----------
-  var contact = document.getElementById("contact-list");
-  function contactItem(icon, content) {
-    contact.appendChild(el("li", null, [svgUse(icon), content]));
-  }
-  contactItem("i-whatsapp", el("a", { href: waLink("היי! 🍰"), target: "_blank", rel: "noopener", text: "וואטסאפ: " + B.phoneDisplay }));
-  contactItem("i-phone", el("a", { href: "tel:+" + B.whatsapp, text: "טלפון: " + B.phoneDisplay }));
-  if (B.instagram) {
-    contactItem("i-insta", el("a", {
-      href: "https://instagram.com/" + B.instagram,
-      target: "_blank", rel: "noopener", text: "@" + B.instagram
-    }));
-  }
-  contactItem("i-pin", el("span", { text: "איסוף ומשלוחים: " + B.area }));
-  contactItem("i-clock", el("span", { text: B.hours }));
-
   document.getElementById("area-text").textContent = B.area;
-  document.getElementById("year").textContent = new Date().getFullYear();
-
-  // ---------- Mobile nav ----------
-  var toggle = document.querySelector(".nav-toggle");
-  var nav = document.getElementById("site-nav");
-  function setNav(open) {
-    nav.classList.toggle("open", open);
-    toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "סגירת תפריט" : "פתיחת תפריט");
-  }
-  toggle.addEventListener("click", function () { setNav(!nav.classList.contains("open")); });
-  nav.addEventListener("click", function (e) { if (e.target.closest("a")) setNav(false); });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && nav.classList.contains("open")) { setNav(false); toggle.focus(); }
-  });
-  document.addEventListener("click", function (e) {
-    if (nav.classList.contains("open") && !e.target.closest(".site-header")) setNav(false);
-  });
-
-  // ---------- Fade-in on scroll ----------
-  var items = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add("visible"); io.unobserve(en.target); }
-      });
-    }, { rootMargin: "0px 0px -40px 0px", threshold: 0.08 });
-    items.forEach(function (n) { io.observe(n); });
-  } else {
-    items.forEach(function (n) { n.classList.add("visible"); });
-  }
 })();

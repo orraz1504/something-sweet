@@ -297,7 +297,8 @@
     form.hidden = false;
     selectSize(id);
     document.querySelectorAll('[aria-controls="builder"]').forEach(function (b) { b.setAttribute("aria-expanded", "true"); });
-    form.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    var calm = matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("a11y-nomotion");
+    form.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
     form.querySelector('input[name="size"]:checked').focus({ preventScroll: true });
   }
 

@@ -50,4 +50,12 @@
     <symbol id="i-info" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.5" r=".6" fill="currentColor"/></g>
     </symbol>
+    <symbol id="i-access" viewBox="0 0 24 24">
+      <g fill="currentColor"><circle cx="12" cy="4.2" r="2.2"/></g>
+      <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.5 8.2c2.5.8 5 1.2 7.5 1.2s5-.4 7.5-1.2"/>
+        <path d="M12 9.4v4.8"/>
+        <path d="M12 14.2l-3.2 6.6"/><path d="M12 14.2l3.2 6.6"/>
+      </g>
+    </symbol>
 </svg>

@@ -148,7 +148,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   color: var(--brown);
 }
 .brand-logo { width: 40px; height: 40px; }
+.brand-text { display: grid; }
 .brand-name { font: 700 1.9rem/1 var(--font-head); padding-top: 4px; }
+.brand-by {
+  font: 600 .72rem/1.2 var(--font-round);
+  color: var(--pink);
+  letter-spacing: .01em;
+}
 
 .nav-toggle {
   width: 44px; height: 44px;

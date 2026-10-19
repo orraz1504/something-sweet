@@ -515,9 +515,27 @@
   SITE.boxes.forEach(function (box, i) {
     sizeWrap.appendChild(chip("radio", "size", box.id, box.name, shekel(box.price), i === 0));
   });
+  var MAX_COOKIES = SITE.maxCookies || SITE.cookieTypes.length;
+  var cookieHint = document.getElementById("b-cookies-hint");
   SITE.cookieTypes.forEach(function (c) {
     cookieWrap.appendChild(chip("checkbox", "cookies", c, c));
   });
+
+  // at most MAX_COOKIES kinds: once the limit is reached the rest are greyed out
+  function checkedCookies() {
+    return Array.prototype.slice.call(form.querySelectorAll('input[name="cookies"]:checked'));
+  }
+  function updateCookieLimit() {
+    var n = checkedCookies().length;
+    var full = n >= MAX_COOKIES;
+    form.querySelectorAll('input[name="cookies"]').forEach(function (c) {
+      c.disabled = full && !c.checked;
+      c.closest(".chip").classList.toggle("chip-off", c.disabled);
+    });
+    cookieHint.textContent = full
+      ? "(בחרתם " + n + " מתוך " + MAX_COOKIES + ")"
+      : "(עד " + MAX_COOKIES + " סוגים)";
+  }
 
   function getBox() {
     var checked = form.querySelector('input[name="size"]:checked');
@@ -590,6 +608,7 @@
 
   form.addEventListener("change", function (e) {
     if (e.target.name === "size") renderBoxOptions();
+    else if (e.target.name === "cookies") updateCookieLimit();
     else updateTotal();
   });
 
@@ -598,7 +617,7 @@
     var box = getBox();
     var cake = getCake(box);
     var crumbl = Array.prototype.map.call(crumblWrap.querySelectorAll("select"), function (s) { return s.value; });
-    var cookies = Array.prototype.map.call(form.querySelectorAll('input[name="cookies"]:checked'), function (c) { return c.value; });
+    var cookies = checkedCookies().slice(0, MAX_COOKIES).map(function (c) { return c.value; });
     var notes = document.getElementById("b-notes").value.trim();
 
     var details = [
@@ -610,11 +629,14 @@
 
     addToBasket({ name: box.name, option: "", flavor: "", price: box.price + cake.extra, qty: 1, details: details });
     document.getElementById("b-notes").value = "";
+    checkedCookies().forEach(function (c) { c.checked = false; });
+    updateCookieLimit();
     closeBuilder();
     document.getElementById("boxes").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" });
   });
 
   renderBoxOptions();
+  updateCookieLimit();
   renderBasket();
 
   // ---------- About ----------

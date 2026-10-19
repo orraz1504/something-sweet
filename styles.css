@@ -396,11 +396,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- Gallery ---------- */
 .gallery {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* flex (not grid) so a last row that isn't full is centred */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 22px 14px;
 }
-.gallery li { position: relative; }
+.gallery li { position: relative; flex: 0 0 calc((100% - 14px) / 2); }
 .gallery-btn {
   display: block;
   width: 100%;
@@ -423,8 +425,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .gallery .pl-price { font: 600 .92rem/1.2 var(--font-round); color: var(--pink); }
 .gallery .ph::before { font-size: clamp(1.5rem, 6vw, 2rem); }
 
-@media (min-width: 640px) { .gallery { grid-template-columns: repeat(4, 1fr); gap: 28px 18px; } }
-@media (min-width: 1000px) { .gallery { grid-template-columns: repeat(4, 1fr); gap: 32px 28px; } }
+@media (min-width: 640px) {
+  .gallery { gap: 28px 18px; }
+  .gallery li { flex-basis: calc((100% - 3 * 18px) / 4); }
+}
+@media (min-width: 1000px) {
+  .gallery { gap: 32px 28px; }
+  .gallery li { flex-basis: calc((100% - 3 * 28px) / 4); }
+}
 
 /* ---------- About ---------- */
 .about-inner { max-width: 760px; }
@@ -625,6 +633,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .chip input:checked + span small { color: #fff; }
 .chip input:focus-visible + span { outline: 3px solid var(--pink); outline-offset: 2px; }
 .chip:hover span { border-color: var(--pink); }
+.chip-off span { opacity: .45; }
+.chip-off:hover span { border-color: var(--tan); }
 
 .crumbl-selects {
   display: grid;

@@ -37,7 +37,7 @@
     return svg;
   }
 
-  // the number comes from data.js, which is only loaded on the home page
+  // the number comes from the site data (SITE), which is only on the home page
   function waLink(message) {
     return "https://wa.me/" + SITE.business.whatsapp + "?text=" + encodeURIComponent(message);
   }

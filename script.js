@@ -1,6 +1,6 @@
 /* משהו מתוק – home page: product card, basket, box builder.
    The product and box cards are written into index.html by Jekyll; this file adds the
-   interactive parts, using the same data from data.js. No need to edit it to change prices. */
+   interactive parts, using the same data (SITE, written into the page from _includes/site-data.js). No need to edit it to change prices. */
 (function () {
   "use strict";
 

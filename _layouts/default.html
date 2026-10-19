@@ -1,4 +1,6 @@
 {%- assign S = site.data.settings -%}
+{%- comment %} changes on every build, so browsers never mix a new page with old CSS / JS {% endcomment -%}
+{%- assign v = site.time | date: "%s" -%}
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
@@ -12,8 +14,8 @@
   {%- endif %}
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="fonts.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="fonts.css?v={{ v }}">
+  <link rel="stylesheet" href="styles.css?v={{ v }}">
 </head>
 <body>
 
@@ -29,8 +31,10 @@
 
 {% if page.home %}{% include home-dialogs.html %}{% endif %}
 
-{% if page.home %}<script src="data.js"></script>
-{% endif %}<script src="layout.js"></script>
-{% if page.home %}<script src="script.js"></script>
+{% if page.home %}{% capture site_data %}{% include site-data.js %}{% endcapture %}<script>
+{{ site_data | replace: "</", "<\/" }}
+</script>
+{% endif %}<script src="layout.js?v={{ v }}"></script>
+{% if page.home %}<script src="script.js?v={{ v }}"></script>
 {% endif %}</body>
 </html>

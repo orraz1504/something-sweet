@@ -1,4 +1,4 @@
-# הגדרות כלליות של האתר – עורכים דרך Pages CMS ("הגדרות כלליות").
+# הגדרות כלליות של האתר (טקסטים, פרטים משפטיים). פרטי הקשר נמצאים ב-contact.yml.
 business:
   name: משהו מתוק
   tagline: קונדיטוריה | עוגות | מארזים
@@ -6,15 +6,6 @@ business:
   location: אלון מורה
   logo: /images/logo.webp
   header_logo: /images/logo-mixer.webp
-
-contact:
-  whatsapp: "972586071206"
-  phone_display: 058-607-1206
-  instagram: ""
-  email: ""
-  area: אלון מורה והסביבה
-  pickup_map: https://maps.app.goo.gl/v7R2AZDDgrmJAq8A8
-  hours: פתוח 24/6 · לא בשבת
 
 orders:
   lead_time: 3 ימים

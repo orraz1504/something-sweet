@@ -11,7 +11,7 @@
 const SITE = {
   business: {
     name: {{ S.business.name | jsonify }},
-    whatsapp: {{ S.contact.whatsapp | strip | jsonify }}
+    whatsapp: {{ site.data.contact.whatsapp | strip | jsonify }}
   },
 
   // one list per category, in the same order as on the page

@@ -20,10 +20,10 @@
     "@type": "Bakery",
     "name": {{ S.business.name | jsonify }},
     "description": {{ S.seo.description | jsonify }},
-    "telephone": {{ S.contact.whatsapp | strip | prepend: "+" | jsonify }},
+    "telephone": {{ site.data.contact.whatsapp | strip | prepend: "+" | jsonify }},
     "priceRange": "₪₪",
     "servesCuisine": "קינוחים",
-    "areaServed": {{ S.contact.area | jsonify }},
+    "areaServed": {{ site.data.contact.area | jsonify }},
     "address": {
       "@type": "PostalAddress",
       "addressLocality": {{ S.business.location | jsonify }},

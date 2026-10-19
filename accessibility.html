@@ -41,8 +41,8 @@ wa_message: היי! 🍰
       <h2>פנייה בנושא נגישות</h2>
       <ul>
         <li>אחראית נגישות: <span>{% include field.html value=S.business.owner_name label="שם בעלת העסק" %}</span></li>
-        <li>טלפון / וואטסאפ: <a href="tel:+{{ S.contact.whatsapp | strip }}"><span>{% include field.html value=S.contact.phone_display label="טלפון" %}</span></a></li>
-        {% if S.contact.email != nil and S.contact.email != "" %}<li>מייל: <a href="mailto:{{ S.contact.email | strip | escape }}">{{ S.contact.email | escape }}</a></li>{% endif %}
+        <li>טלפון / וואטסאפ: <a href="tel:+{{ site.data.contact.whatsapp | strip }}"><span>{% include field.html value=site.data.contact.phone_display label="טלפון" %}</span></a></li>
+        {% if site.data.contact.email != nil and site.data.contact.email != "" %}<li>מייל: <a href="mailto:{{ site.data.contact.email | strip | escape }}">{{ site.data.contact.email | escape }}</a></li>{% endif %}
       </ul>
       <p>כדי שאוכל לעזור, ספרו לי באיזה עמוד הייתה הבעיה ומה ניסיתם לעשות.</p>
       <p class="updated">עודכן לאחרונה: <span>{% include field.html value=S.legal.policy_date label="תאריך עדכון" %}</span></p>

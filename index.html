@@ -260,7 +260,7 @@ wa_message: היי! אשמח להזמין משהו מתוק 🍰
       <div class="notice reveal">
         <p><strong>שימו לב:</strong> אין הזמנה אונליין דרך האתר – כל ההזמנות בהודעת וואטסאפ בלבד.</p>
         <p>מומלץ להזמין <strong>{% include field.html value=S.orders.lead_time label="כמה זמן מראש להזמין" %}</strong> מראש.</p>
-        <p>איסוף ומשלוחים: <strong id="area-text">{{ S.contact.area | escape }}</strong>, בתיאום מראש.{% if S.contact.pickup_map != nil and S.contact.pickup_map != "" %}<span> <a href="{{ S.contact.pickup_map | strip | escape }}" target="_blank" rel="noopener">מיקום לאיסוף במפה</a></span>{% endif %}</p>
+        <p>איסוף ומשלוחים: <strong id="area-text">{{ site.data.contact.area | escape }}</strong>, בתיאום מראש.{% if site.data.contact.pickup_map != nil and site.data.contact.pickup_map != "" %}<span> <a href="{{ site.data.contact.pickup_map | strip | escape }}" target="_blank" rel="noopener">מיקום לאיסוף במפה</a></span>{% endif %}</p>
       </div>
       <div class="center reveal">
         <a class="btn btn-primary btn-lg" href="#products">לבחירת מוצרים</a>

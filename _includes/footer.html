@@ -1,5 +1,5 @@
 {%- assign S = site.data.settings -%}
-{%- assign C = S.contact -%}
+{%- assign C = site.data.contact -%}
 {%- capture tel %}tel:+{{ C.whatsapp | strip }}{% endcapture -%}
 <footer class="site-footer" id="contact" aria-labelledby="contact-title">
   <div class="wave-top" aria-hidden="true"></div>

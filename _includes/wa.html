@@ -1,2 +1,2 @@
 {%- comment -%} WhatsApp link with a ready message (spaces as %20, which wa.me reads correctly). {%- endcomment -%}
-https://wa.me/{{ site.data.settings.contact.whatsapp | strip }}?text={{ include.text | url_encode | replace: "+", "%20" }}
+https://wa.me/{{ site.data.contact.whatsapp | strip }}?text={{ include.text | url_encode | replace: "+", "%20" }}

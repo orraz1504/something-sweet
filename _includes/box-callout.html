@@ -1,0 +1,29 @@
+{%- comment -%}
+  One bubble next to a box photo. The line under the title is either written by hand,
+  or filled in automatically from the box settings, so it always matches the builder.
+{%- endcomment -%}
+{%- assign c = include.callout -%}
+{%- assign BB = site.data.box_builder -%}
+{%- case c.auto -%}
+  {%- when "crumbl" -%}{%- assign c_text = BB.crumbl_flavors | join: " · " -%}
+  {%- when "cookies" -%}{%- assign c_text = BB.cookie_types | join: " · " -%}
+  {%- when "cakes" -%}
+    {%- assign c_plain = "" | split: "" -%}
+    {%- assign c_extra = "" -%}
+    {%- for cake in include.box.cakes -%}
+      {%- if cake.extra > 0 -%}
+        {%- capture c_extra %}{{ c_extra }} ({{ cake.name }} – בתוספת {{ cake.extra }} ₪){% endcapture -%}
+      {%- else -%}
+        {%- assign c_plain = c_plain | push: cake.name -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign c_text = c_plain | join: " · " | append: c_extra | strip -%}
+  {%- else -%}{%- assign c_text = c.text -%}
+{%- endcase -%}
+{%- assign c_title = c.title | escape -%}
+{%- assign c_hl = c.highlight | strip | escape -%}
+{%- if c_hl != "" and c_title contains c_hl -%}
+  {%- capture c_em %}<em>{{ c_hl }}</em>{% endcapture -%}
+  {%- assign c_title = c_title | replace_first: c_hl, c_em -%}
+{%- endif -%}
+<div class="callout"><h4>{{ c_title }}</h4><p>{{ c_text | escape }}</p><svg class="arrow" aria-hidden="true" focusable="false"><use href="#arrow"></use></svg></div>

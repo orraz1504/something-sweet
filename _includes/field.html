@@ -1,0 +1,3 @@
+{%- comment -%} A detail from the settings, or a yellow "to fill in" marker when it is still empty. {%- endcomment -%}
+{%- assign field_value = include.value | strip -%}
+{%- if field_value != "" -%}{{ field_value | escape }}{%- else -%}<mark class="todo">להשלמה: {{ include.label }}</mark>{%- endif -%}

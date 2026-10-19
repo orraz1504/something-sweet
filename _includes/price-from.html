@@ -1,0 +1,17 @@
+{%- comment -%}
+  Price line on a product card: "החל מ-100 ₪" / "45 ₪" / "מחיר בתיאום" / "130–230 ₪" (box card).
+  Same rules as priceFrom() in script.js.
+{%- endcomment -%}
+{%- assign pf = include.product -%}
+{%- if pf.box_card -%}
+  {%- assign pf_prices = site.boxes | where_exp: "b", "b.visible != false" | map: "price" | compact | sort -%}
+  {%- if pf_prices.size == 0 -%}מחיר בתיאום
+  {%- elsif pf_prices.first == pf_prices.last -%}{{ pf_prices.first }} ₪
+  {%- else -%}{{ pf_prices.first }}–{{ pf_prices.last }} ₪{%- endif -%}
+{%- else -%}
+  {%- assign pf_prices = pf.variations | map: "price" | compact | sort -%}
+  {%- if pf_prices.size > 0 -%}
+    {%- if pf.variations.size > 1 -%}החל מ-{%- endif -%}{{ pf_prices.first }} ₪
+  {%- elsif pf.price != nil and pf.price != "" -%}{{ pf.price }} ₪
+  {%- else -%}מחיר בתיאום{%- endif -%}
+{%- endif -%}

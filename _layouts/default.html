@@ -1,0 +1,36 @@
+{%- assign S = site.data.settings -%}
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.home %}{{ S.seo.title | escape }}{% else %}{{ page.title }} – {{ S.business.name | escape }}{% endif %}</title>
+  <meta name="description" content="{% if page.home %}{{ S.seo.description | escape }}{% else %}{{ page.description }}{% endif %}">
+  <meta name="theme-color" content="#F3F0EB">
+  {%- if page.home %}
+  {% include head-home.html %}
+  {%- endif %}
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+{% include icons.html %}
+
+<a class="skip-link" href="#main">דלג לתוכן</a>
+
+{% include header.html %}
+
+{{ content }}
+
+{% include footer.html %}
+
+{% if page.home %}{% include home-dialogs.html %}{% endif %}
+
+{% if page.home %}<script src="data.js"></script>
+{% endif %}<script src="layout.js"></script>
+{% if page.home %}<script src="script.js"></script>
+{% endif %}</body>
+</html>

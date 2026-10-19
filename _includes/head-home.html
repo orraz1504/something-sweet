@@ -1,0 +1,39 @@
+{%- assign S = site.data.settings -%}
+{%- assign site_url = S.seo.site_url | strip -%}
+{%- assign last = site_url | slice: -1 -%}
+{%- unless last == "/" %}{% assign site_url = site_url | append: "/" %}{% endunless -%}
+<!-- תצוגה מקדימה כשמשתפים קישור (וואטסאפ, פייסבוק). כתובת האתר נלקחת מ"הגדרות כלליות" -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  <meta property="og:site_name" content="{{ S.business.name | escape }}">
+  <meta property="og:title" content="{{ S.seo.title | escape }}">
+  <meta property="og:description" content="{{ S.seo.share_description | escape }}">
+  <meta property="og:url" content="{{ site_url | escape }}">
+  <meta property="og:image" content="{{ site_url | escape }}images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Bakery",
+    "name": {{ S.business.name | jsonify }},
+    "description": {{ S.seo.description | jsonify }},
+    "telephone": {{ S.contact.whatsapp | strip | prepend: "+" | jsonify }},
+    "priceRange": "₪₪",
+    "servesCuisine": "קינוחים",
+    "areaServed": {{ S.contact.area | jsonify }},
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": {{ S.business.location | jsonify }},
+      "addressCountry": "IL"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "00:00",
+      "closes": "23:59"
+    }
+  }
+  </script>

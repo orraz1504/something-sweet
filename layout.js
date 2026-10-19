@@ -1,12 +1,9 @@
-/* משהו מתוק – shared by every page: footer, business details, WhatsApp links, menu.
-   All details come from data.js – no need to edit this file. */
+/* משהו מתוק – shared by every page: mobile menu, accessibility menu, small helpers.
+   The business details and the footer are written into the pages by Jekyll (_includes). */
 (function () {
   "use strict";
 
   document.documentElement.classList.add("js");
-
-  var B = SITE.business;
-  var L = SITE.legal;
 
   // ---------- helpers (also used by script.js) ----------
   function el(tag, attrs, children) {
@@ -40,99 +37,14 @@
     return svg;
   }
 
+  // the number comes from data.js, which is only loaded on the home page
   function waLink(message) {
-    return "https://wa.me/" + B.whatsapp + "?text=" + encodeURIComponent(message);
+    return "https://wa.me/" + SITE.business.whatsapp + "?text=" + encodeURIComponent(message);
   }
 
   function shekel(n) { return n + " ₪"; }
 
-  // Yellow "to fill in" marker for details that are still empty in data.js
-  function todo(label) {
-    return el("mark", { class: "todo", text: "להשלמה: " + label });
-  }
-
-  window.Sweet = { el: el, svgUse: svgUse, waLink: waLink, shekel: shekel, todo: todo };
-
-  // ---------- details from data.js ----------
-  var FIELDS = {
-    businessName: [B.name, "שם העסק"],
-    ownerName: [L.ownerName, "שם בעלת העסק"],
-    osekNumber: [L.osekNumber, "מספר עוסק"],
-    osekStatus: [L.osekStatus ? "עוסק " + L.osekStatus : "", "עוסק פטור / מורשה"],
-    location: [B.location, "יישוב"],
-    phone: [B.phoneDisplay, "טלפון"],
-    orderLeadTime: [L.orderLeadTime, "כמה זמן מראש להזמין"],
-    delivery: [L.delivery, "תנאי איסוף ומשלוח"],
-    deliveryFee: [L.deliveryFee, "עלות משלוח"],
-    pickupAccessibility: [L.pickupAccessibility, "נגישות מקום האיסוף"],
-    policyDate: [L.policyDate, "תאריך עדכון"]
-  };
-
-  document.querySelectorAll("[data-field]").forEach(function (node) {
-    var f = FIELDS[node.getAttribute("data-field")];
-    if (!f) return;
-    node.textContent = "";
-    node.appendChild(f[0] ? document.createTextNode(f[0]) : todo(f[1]));
-  });
-
-  // phone links
-  document.querySelectorAll("[data-tel]").forEach(function (a) {
-    a.href = "tel:+" + B.whatsapp;
-  });
-
-  // email: shown only when filled in
-  document.querySelectorAll("[data-email]").forEach(function (node) {
-    if (L.email) {
-      node.textContent = "";
-      node.appendChild(el("a", { href: "mailto:" + L.email, text: L.email }));
-    } else {
-      node.closest("[data-email-wrap]") ? node.closest("[data-email-wrap]").remove() : node.remove();
-    }
-  });
-
-  // VAT note – only for עוסק מורשה
-  document.querySelectorAll("[data-vat-note]").forEach(function (node) {
-    node.textContent = "";
-    if (L.osekStatus === "מורשה") node.textContent = "כל המחירים כוללים מע״מ.";
-    else if (!L.osekStatus) node.appendChild(todo("עוסק פטור / מורשה – במורשה יופיע כאן \"כל המחירים כוללים מע״מ\""));
-    else node.remove();
-  });
-
-  // cancellation terms list
-  document.querySelectorAll("[data-cancellation]").forEach(function (list) {
-    list.textContent = "";
-    if (L.cancellation && L.cancellation.length) {
-      L.cancellation.forEach(function (line) { list.appendChild(el("li", { text: line })); });
-    } else {
-      list.appendChild(el("li", null, [todo("תנאי הביטול")]));
-    }
-  });
-
-  // pickup location links – hidden when there is no map link in data.js
-  document.querySelectorAll("[data-map]").forEach(function (a) {
-    if (B.pickupMap) a.href = B.pickupMap;
-    else (a.closest("[data-map-wrap]") || a).remove();
-  });
-
-  // WhatsApp links written in the HTML
-  document.querySelectorAll("[data-wa]").forEach(function (a) {
-    a.href = waLink(a.getAttribute("data-wa"));
-  });
-
-  // ---------- Footer ----------
-  var contact = document.getElementById("contact-list");
-  if (contact) {
-    var item = function (icon, content) { contact.appendChild(el("li", null, [svgUse(icon), content])); };
-    item("i-whatsapp", el("a", { href: waLink("היי! 🍰"), target: "_blank", rel: "noopener", text: "וואטסאפ: " + B.phoneDisplay }));
-    item("i-phone", el("a", { href: "tel:+" + B.whatsapp, text: "טלפון: " + B.phoneDisplay }));
-    if (L.email) item("i-mail", el("a", { href: "mailto:" + L.email, text: L.email }));
-    if (B.instagram) {
-      item("i-insta", el("a", { href: "https://instagram.com/" + B.instagram, target: "_blank", rel: "noopener", text: "אינסטגרם: @" + B.instagram }));
-    }
-    item("i-pin", el("span", { text: "איסוף ומשלוחים: " + B.area }));
-    if (B.pickupMap) item("i-pin", el("a", { href: B.pickupMap, target: "_blank", rel: "noopener", text: "מיקום לאיסוף במפה" }));
-    item("i-clock", el("span", { text: B.hours }));
-  }
+  window.Sweet = { el: el, svgUse: svgUse, waLink: waLink, shekel: shekel };
 
   var year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();

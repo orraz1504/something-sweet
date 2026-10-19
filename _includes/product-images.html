@@ -1,0 +1,8 @@
+{%- comment -%} pimgs = the product's photos (main photo first, then the gallery), as relative paths. {%- endcomment -%}
+{%- assign pimgs = "" | split: "" -%}
+{%- assign pimg_all = "" | split: "" | push: include.product.image -%}
+{%- if include.product.gallery -%}{%- assign pimg_all = pimg_all | concat: include.product.gallery -%}{%- endif -%}
+{%- for f in pimg_all -%}
+  {%- capture pimg %}{% include src.html src=f %}{% endcapture -%}
+  {%- if pimg != "" -%}{%- unless pimgs contains pimg -%}{%- assign pimgs = pimgs | push: pimg -%}{%- endunless -%}{%- endif -%}
+{%- endfor -%}

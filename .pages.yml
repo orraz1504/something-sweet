@@ -1,0 +1,542 @@
+# Pages CMS (app.pagescms.org) – the editing screens for the site content.
+# Each save is a commit; GitHub Pages rebuilds the site (Jekyll) about a minute later.
+
+media:
+  input: images
+  output: /images
+  categories: [image]
+  rename: random
+
+content:
+  # ---------------------------------------------------------------- products
+  - name: products
+    label: מוצרים
+    type: collection
+    path: _products
+    format: yaml-frontmatter
+    filename:
+      template: "product-{year}{month}{day}-{hour}{minute}{second}.md"
+      field: false
+    view:
+      primary: name
+      fields: [name, visible, order]
+      sort: [order, name]
+      search: [name]
+      default:
+        sort: order
+        order: asc
+    fields:
+      - name: name
+        label: שם המוצר
+        type: string
+        required: true
+      - name: category
+        label: קטגוריה
+        description: באיזה חלק של האתר המוצר יופיע
+        type: reference
+        required: true
+        options:
+          collection: product_groups
+          search: name
+          value: "{path}"
+          label: "{name}"
+      - name: image
+        label: תמונה ראשית
+        description: תופיע בכרטיס המוצר. תמונה ריבועית נראית הכי טוב. בלי תמונה יופיע כרטיס ורוד עם שם המוצר.
+        type: image
+      - name: gallery
+        label: תמונות נוספות
+        description: יופיעו בחלון המוצר, מתחת לתמונה הגדולה (לא חובה)
+        type: image
+        options:
+          multiple:
+            max: 12
+      - name: description
+        label: תיאור
+        description: שורת הסבר שמופיעה בחלון המוצר, למשל "פרווה." או "המחיר לפי כמות – נתאם בוואטסאפ." (לא חובה)
+        type: text
+      - name: variations
+        label: גדלים / אפשרויות ומחירים
+        description: כל שורה היא אפשרות לבחירה עם מחיר משלה, למשל "פס", "עיגול קוטר 26", "10 יחידות", "ללא גלוטן". בכרטיס יופיע "החל מ-" המחיר הנמוך.
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name} · {price} ₪"
+        fields:
+          - name: name
+            label: שם האפשרות
+            type: string
+            required: true
+          - name: price
+            label: מחיר בשקלים
+            description: מספר בלבד, בלי ₪. ריק = "בתיאום"
+            type: number
+            options:
+              min: 0
+          - name: label
+            label: תווית ורודה
+            description: למשל "מבצע" (לא חובה)
+            type: string
+          - name: note
+            label: הערה
+            description: מופיעה ליד המחיר, למשל "ללא גלוטן" (לא חובה)
+            type: string
+          - name: image
+            label: תמונה לאפשרות הזו
+            description: מוצגת כשבוחרים את האפשרות (לא חובה)
+            type: image
+      - name: price
+        label: מחיר בשקלים – רק למוצר בלי אפשרויות
+        description: אם יש למעלה גדלים / אפשרויות, משאירים ריק. מוצר בלי אפשרויות ובלי מחיר יופיע כ"מחיר בתיאום".
+        type: number
+        options:
+          min: 0
+      - name: flavors_title
+        label: כותרת לבחירת הטעם
+        description: למשל "טעם", "מילוי", "סוג הדף"
+        type: string
+      - name: flavors
+        label: טעמים לבחירה
+        description: הלקוח בוחר אחד מהם בחלון המוצר (לא חובה)
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name}"
+        fields:
+          - name: name
+            label: שם הטעם
+            type: string
+            required: true
+          - name: image
+            label: תמונה לטעם הזה
+            description: מוצגת כשבוחרים את הטעם (לא חובה)
+            type: image
+      - name: flavors_from_crumbl
+        label: הטעמים הם טעמי הקראמבל
+        description: מסמנים רק בקראמבל קוקיז – הטעמים יילקחו מ"הגדרות המארזים", כך שמשנים אותם במקום אחד
+        type: boolean
+      - name: tag
+        label: תגית
+        description: מופיעה על כרטיס המוצר (לא חובה)
+        type: select
+        options:
+          placeholder: בלי תגית
+          values: [חדש, מומלץ, עונתי]
+      - name: visible
+        label: מוצג באתר
+        description: מכבים כדי להסתיר את המוצר זמנית, בלי למחוק אותו
+        type: boolean
+        default: true
+      - name: order
+        label: סדר הצגה
+        description: מספר קטן מופיע קודם (10, 20, 30...). כדי להכניס מוצר באמצע – למשל 15.
+        type: number
+      - name: box_card
+        label: כרטיס "מארזים"
+        description: רק לכרטיס "מארזים" – לחיצה עליו פותחת את בחירת המארז במקום מחירים
+        type: boolean
+
+  # ---------------------------------------------------------------- categories
+  - name: product_groups
+    label: קטגוריות
+    type: collection
+    path: _product_groups
+    format: yaml-frontmatter
+    filename:
+      template: "category-{year}{month}{day}-{hour}{minute}{second}.md"
+      field: false
+    view:
+      primary: name
+      fields: [name, order]
+      default:
+        sort: order
+        order: asc
+    fields:
+      - name: name
+        label: שם הקטגוריה
+        type: string
+        required: true
+      - name: display
+        label: תצוגה
+        type: select
+        required: true
+        default: cards
+        options:
+          values:
+            - name: cards
+              label: כרטיסים עם תמונה
+            - name: list
+              label: רשימה בלי תמונות (כמו "עוד אצלנו")
+      - name: show_title
+        label: להציג את שם הקטגוריה ככותרת באתר
+        type: boolean
+        default: true
+      - name: order
+        label: סדר הצגה
+        description: מספר קטן מופיע קודם
+        type: number
+
+  # ---------------------------------------------------------------- boxes
+  - name: boxes
+    label: מארזים
+    type: collection
+    path: _boxes
+    format: yaml-frontmatter
+    filename:
+      template: "box-{year}{month}{day}-{hour}{minute}{second}.md"
+      field: false
+    view:
+      primary: name
+      fields: [name, price, visible, order]
+      default:
+        sort: order
+        order: asc
+    fields:
+      - name: name
+        label: שם המארז
+        type: string
+        required: true
+      - name: price
+        label: מחיר בשקלים
+        type: number
+        required: true
+        options:
+          min: 0
+      - name: image
+        label: תמונה
+        type: image
+      - name: image_shape
+        label: צורת התמונה
+        type: select
+        default: square
+        options:
+          values:
+            - name: square
+              label: ריבוע
+            - name: tall
+              label: מלבן לגובה
+      - name: contents
+        label: תכולת המארז – הבועות ליד התמונה
+        description: הבועה הראשונה מופיעה בצד אחד של התמונה, והשאר בצד השני. אפשר לגרור כדי לשנות סדר.
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{title}"
+        fields:
+          - name: title
+            label: כותרת
+            description: למשל "3 קראמבל קוקיז"
+            type: string
+            required: true
+          - name: highlight
+            label: מילה מודגשת מתוך הכותרת
+            description: למשל "כפולה" (לא חובה)
+            type: string
+          - name: auto
+            label: השורה מתחת לכותרת
+            type: select
+            default: text
+            options:
+              values:
+                - name: text
+                  label: טקסט שאני כותבת (בשדה הבא)
+                - name: crumbl
+                  label: אוטומטי – טעמי הקראמבל
+                - name: cookies
+                  label: אוטומטי – סוגי העוגיות
+                - name: cakes
+                  label: אוטומטי – העוגות של המארז הזה
+          - name: text
+            label: טקסט
+            description: רק אם בחרת "טקסט שאני כותבת"
+            type: string
+      - name: crumbl_count
+        label: כמה קראמבל קוקיז במארז
+        description: כמה טעמים הלקוח בוחר. 0 = בלי קראמבל
+        type: number
+        options:
+          min: 0
+      - name: cookie_choice
+        label: כולל עוגיות לבחירה
+        description: הלקוח בוחר סוגי עוגיות מתוך "הגדרות המארזים"
+        type: boolean
+        default: true
+      - name: cake_title
+        label: סוג העוגה במארז
+        description: למשל "עוגה אישית" או "עוגה משפחתית"
+        type: string
+      - name: cakes
+        label: עוגות לבחירה
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name}"
+        fields:
+          - name: name
+            label: שם העוגה
+            type: string
+            required: true
+          - name: extra
+            label: תוספת מחיר בשקלים
+            description: 0 = בלי תוספת
+            type: number
+            default: 0
+            options:
+              min: 0
+      - name: visible
+        label: מוצג באתר
+        description: מכבים כדי להסתיר את המארז זמנית
+        type: boolean
+        default: true
+      - name: order
+        label: סדר הצגה
+        type: number
+
+  # ---------------------------------------------------------------- box settings
+  - name: box_builder
+    label: הגדרות המארזים
+    type: file
+    path: _data/box_builder.yml
+    format: yaml
+    fields:
+      - name: crumbl_flavors
+        label: טעמי קראמבל קוקיז
+        description: משמשים גם במארזים וגם במוצר "קראמבל קוקיז"
+        type: string
+        list: true
+      - name: cookie_types
+        label: סוגי עוגיות לבחירה במארז
+        type: string
+        list: true
+      - name: max_cookies
+        label: כמה סוגי עוגיות אפשר לבחור במארז
+        type: number
+        options:
+          min: 1
+
+  # ---------------------------------------------------------------- site settings
+  - name: settings
+    label: הגדרות כלליות
+    type: file
+    path: _data/settings.yml
+    format: yaml
+    fields:
+      - name: business
+        label: העסק
+        type: object
+        fields:
+          - name: name
+            label: שם העסק
+            type: string
+            required: true
+          - name: tagline
+            label: שורת תיאור
+            description: למשל "קונדיטוריה | עוגות | מארזים"
+            type: string
+          - name: owner_name
+            label: שם בעלת העסק
+            description: מופיע בראש האתר ובתחתית
+            type: string
+          - name: location
+            label: יישוב
+            type: string
+          - name: logo
+            label: לוגו גדול
+            description: בראש העמוד ובתחתית
+            type: image
+          - name: header_logo
+            label: לוגו קטן
+            description: בפס העליון, ליד שם העסק
+            type: image
+
+      - name: contact
+        label: פרטי קשר
+        type: object
+        fields:
+          - name: whatsapp
+            label: מספר וואטסאפ
+            description: בפורמט בינלאומי, בלי + ובלי מקפים – למשל 972586071206 (במקום ה-0 בהתחלה כותבים 972). אליו נשלחות ההזמנות!
+            type: string
+            required: true
+            pattern:
+              regex: "^972[0-9]{8,9}$"
+              message: מתחילים ב-972 ואחריו המספר בלי ה-0, בלי רווחים ומקפים
+          - name: phone_display
+            label: הטלפון כפי שהוא מוצג באתר
+            description: למשל 058-607-1206
+            type: string
+            required: true
+          - name: instagram
+            label: אינסטגרם
+            description: שם המשתמש בלי @. ריק = לא מוצג
+            type: string
+          - name: email
+            label: מייל
+            description: ריק = לא מוצג
+            type: string
+          - name: area
+            label: אזור איסוף ומשלוחים
+            type: string
+          - name: pickup_map
+            label: קישור למקום האיסוף בגוגל מפות
+            description: ריק = לא מוצג
+            type: string
+          - name: hours
+            label: שעות פעילות
+            type: string
+
+      - name: orders
+        label: הזמנות, משלוח וביטולים
+        type: object
+        fields:
+          - name: lead_time
+            label: כמה זמן מראש להזמין
+            description: למשל "3 ימים"
+            type: string
+          - name: delivery
+            label: איסוף ומשלוח
+            description: מופיע במדיניות ההזמנות
+            type: text
+          - name: delivery_fee
+            label: עלות משלוח
+            description: למשל "20 ₪", "ללא עלות" או "בהתאם למיקום"
+            type: string
+          - name: pickup_accessibility
+            label: נגישות מקום האיסוף
+            type: text
+          - name: cancellation
+            label: תנאי ביטול
+            description: כל שורה היא סעיף
+            type: text
+            list: true
+
+      - name: notes
+        label: הערות כלליות
+        type: object
+        fields:
+          - name: kosher
+            label: כשרות
+            description: מופיע בראש העמוד, מתחת למוצרים ובתחתית
+            type: string
+          - name: allergens
+            label: מידע על אלרגנים
+            type: text
+
+      - name: hero
+        label: החלק העליון של העמוד
+        type: object
+        fields:
+          - name: lead
+            label: שורת הפתיחה
+            type: string
+          - name: image
+            label: התמונה הראשית
+            description: תמונה לגובה (3 על 4) נראית הכי טוב
+            type: image
+          - name: image_alt
+            label: תיאור התמונה הראשית
+            description: מה רואים בתמונה – בשביל עיוורים וגוגל
+            type: string
+          - name: caption
+            label: הכיתוב מתחת לתמונה
+            type: string
+
+      - name: about
+        label: עלינו
+        type: object
+        fields:
+          - name: title
+            label: כותרת
+            type: string
+          - name: subtitle
+            label: כותרת משנה
+            type: string
+          - name: paragraphs
+            label: הטקסט
+            description: כל פריט ברשימה הוא פסקה
+            type: text
+            list: true
+
+      - name: sections
+        label: כותרות באתר
+        type: object
+        fields:
+          - name: products_title
+            label: כותרת המוצרים
+            type: string
+          - name: products_subtitle
+            label: כותרת משנה של המוצרים
+            type: string
+          - name: products_hint
+            label: הסבר מתחת לכותרת המוצרים
+            type: string
+          - name: boxes_title
+            label: כותרת המארזים
+            type: string
+          - name: boxes_subtitle
+            label: כותרת משנה של המארזים
+            type: string
+          - name: how_title
+            label: כותרת "איך מזמינים"
+            type: string
+          - name: how_subtitle
+            label: כותרת משנה של "איך מזמינים"
+            type: string
+
+      - name: how_steps
+        label: שלבי "איך מזמינים"
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{index}. {title}"
+        fields:
+          - name: title
+            label: כותרת השלב
+            type: string
+            required: true
+          - name: text
+            label: הסבר
+            type: text
+
+      - name: legal
+        label: פרטים משפטיים
+        description: מופיעים בתחתית כל עמוד ובעמודי המדיניות. שדה ריק מסומן באתר בצהוב "להשלמה".
+        type: object
+        fields:
+          - name: osek_number
+            label: מספר עוסק
+            type: string
+          - name: osek_status
+            label: סוג עוסק
+            description: במורשה יופיע באתר "כל המחירים כוללים מע״מ"
+            type: select
+            options:
+              values: [פטור, מורשה]
+          - name: policy_date
+            label: תאריך עדכון של עמודי המדיניות
+            description: למשל 18.10.2026
+            type: string
+
+      - name: seo
+        label: גוגל ושיתוף קישור
+        type: object
+        fields:
+          - name: title
+            label: כותרת האתר
+            description: מופיעה בלשונית הדפדפן ובגוגל
+            type: string
+          - name: description
+            label: תיאור האתר לגוגל
+            type: text
+          - name: share_description
+            label: תיאור כששולחים את הקישור בוואטסאפ
+            type: text
+          - name: site_url
+            label: כתובת האתר
+            description: לא לשנות, אלא אם כתובת האתר השתנתה
+            type: string

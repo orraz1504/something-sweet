@@ -1,0 +1,91 @@
+<dialog class="product-dialog" id="product" aria-labelledby="pd-name">
+  <button class="dlg-close pd-close" type="button" aria-label="סגירה">×</button>
+  <div class="pd-media">
+    <div class="ph pd-ph"></div>
+    <div class="pd-thumbs" role="group" aria-label="תמונות נוספות"></div>
+    <button class="lb-nav lb-prev" type="button" aria-label="המוצר הקודם">›</button>
+    <button class="lb-nav lb-next" type="button" aria-label="המוצר הבא">‹</button>
+  </div>
+  <form class="pd-body" id="pd-form" novalidate>
+    <h2 class="pd-name" id="pd-name"></h2>
+    <p class="pd-note" id="pd-note"></p>
+    <fieldset class="pd-group" id="pd-options-wrap">
+      <legend>בחירה</legend>
+      <div class="chips" id="pd-options"></div>
+    </fieldset>
+    <fieldset class="pd-group" id="pd-flavors-wrap">
+      <legend id="pd-flavors-title">טעם</legend>
+      <div class="chips" id="pd-flavors"></div>
+    </fieldset>
+    <div class="pd-qty" id="pd-qty-wrap">
+      <span id="pd-qty-label">כמות</span>
+      <div class="qty" role="group" aria-labelledby="pd-qty-label">
+        <button type="button" class="qty-btn" data-step="-1" aria-label="הפחתת כמות">−</button>
+        <input type="number" id="pd-qty" class="qty-input" min="1" max="99" value="1" inputmode="numeric" aria-labelledby="pd-qty-label">
+        <button type="button" class="qty-btn" data-step="1" aria-label="הוספת כמות">+</button>
+      </div>
+    </div>
+    <div class="pd-boxes" id="pd-boxes"></div>
+    <button type="submit" class="btn btn-primary btn-lg pd-add" id="pd-add">
+      <svg class="icon" aria-hidden="true"><use href="#i-basket"/></svg>
+      <span id="pd-add-text">הוספה לסל</span>
+    </button>
+  </form>
+</dialog>
+
+<dialog class="basket" id="basket" aria-labelledby="basket-title">
+  <div class="basket-head">
+    <h2 id="basket-title">הסל שלי</h2>
+    <button class="dlg-close" type="button" aria-label="סגירת הסל">×</button>
+  </div>
+  <div class="basket-empty" id="basket-empty">
+    <p>הסל עדיין ריק <span aria-hidden="true">🧁</span></p>
+    <a class="btn btn-primary" href="#products" data-close-basket>לבחירת מוצרים</a>
+  </div>
+  <div class="basket-full" id="basket-full">
+    <ul class="basket-items" id="basket-items"></ul>
+    <p class="basket-total">סה״כ: <strong id="basket-total"></strong></p>
+    <p class="basket-total-note" id="basket-total-note"></p>
+
+    <form class="basket-form" id="basket-form" novalidate>
+      <div class="builder-row">
+        <label class="field">
+          <span>שם</span>
+          <input type="text" id="o-name" autocomplete="name" placeholder="איך קוראים לך?">
+        </label>
+        <label class="field">
+          <span>לאיזה תאריך?</span>
+          <input type="date" id="o-date">
+        </label>
+      </div>
+      <fieldset>
+        <legend>איסוף או משלוח?</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="o-delivery" value="איסוף עצמי" checked><span>איסוף עצמי</span></label>
+          <label class="chip"><input type="radio" name="o-delivery" value="משלוח"><span>משלוח</span></label>
+        </div>
+      </fieldset>
+      <label class="field" id="o-address-wrap" hidden>
+        <span>כתובת למשלוח</span>
+        <input type="text" id="o-address" autocomplete="street-address" placeholder="יישוב, רחוב ומספר">
+        <small class="muted">עלות המשלוח בהתאם למיקום.</small>
+      </label>
+      <label class="field">
+        <span>הערות</span>
+        <textarea id="o-notes" rows="2" placeholder="למשל: ברכה, אלרגיות, שעה נוחה..."></textarea>
+      </label>
+      <button type="submit" class="btn btn-whatsapp btn-lg">
+        <svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg>
+        שליחת ההזמנה בוואטסאפ
+      </button>
+      <p class="terms-note">בהזמנה את/ה מסכים/ה ל<a href="orders.html">מדיניות ההזמנות והביטולים</a>.<br>
+        הפרטים לא נשלחים לשום מקום חוץ מהודעת הוואטסאפ שאתם שולחים. <a href="privacy.html">מדיניות פרטיות</a></p>
+      <button type="button" class="basket-clear" id="basket-clear">ריקון הסל</button>
+    </form>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+  <span id="toast-text"></span>
+  <button type="button" class="toast-btn" id="toast-open">לצפייה בסל</button>
+</div>

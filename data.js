@@ -1,227 +1,79 @@
+---
+---
+{%- include catalog.html -%}
+{%- assign S = site.data.settings -%}
+{%- assign BB = site.data.box_builder -%}
 /*
- * ==========================================================
- *   משהו מתוק – קובץ הנתונים של האתר
- * ==========================================================
- *
- *  כל המוצרים, המחירים והמארזים נמצאים בקובץ הזה בלבד.
- *  האתר נבנה מהם אוטומטית – אין צורך לגעת בשום קובץ אחר.
- *
- *  איך משנים מחיר?
- *    מוצאים את השורה, למשל:  { name: "פס", price: 100 },
- *    ומשנים רק את המספר:     { name: "פס", price: 110 },
- *
- *  איך מוסיפים שורת מחיר?
- *    מעתיקים שורה קיימת (כולל הפסיק בסוף) ומדביקים מתחתיה.
- *
- *  איך מוסיפים מוצר?
- *    1. מעלים תמונה לתיקייה images/products (שם באנגלית, למשל cake.webp).
- *    2. מעתיקים מוצר קיים ברשימה products ומשנים את השם, התמונה והמחירים.
- *
- *  מוצר בלי מחיר קבוע ("מחיר בתיאום"): כותבים priceOnRequest: true
- *  ובאפשרויות לא כותבים price.
- *
- *  איך מורידים משהו?
- *    מוחקים את כל השורה שלו (מ- { ועד }, כולל הפסיק).
- *
- *  חשוב:
- *    - הטקסט תמיד בתוך מירכאות "כך".
- *    - מחירים הם מספרים בלי מירכאות ובלי ₪.
- *    - לא לשכוח פסיק בסוף כל שורה.
- *    - אחרי שמירה (Commit) האתר מתעדכן תוך דקה–שתיים.
- * ==========================================================
+ * משהו מתוק – הנתונים של החלק האינטראקטיבי (כרטיס מוצר, סל, הרכבת מארז).
+ * הקובץ נבנה אוטומטית מתוכן האתר (_products, _boxes, _data) – לא עורכים אותו.
+ * את התוכן משנים ב-Pages CMS (ראו מדריך-עריכה.md).
  */
-
-// טעמי קראמבל קוקיז – רשימה אחת שמשמשת גם את המוצר וגם את המארזים.
-// מספיק לשנות כאן, וזה מתעדכן בשני המקומות.
-const CRUMBL_FLAVORS = ["פיסטוק", "קינדר", "עדשים", "רפאלו", "קורנפלקס", "שוקולד", "הרשיס"];
-
 const SITE = {
-  // ---------- פרטי העסק ----------
   business: {
-    name: "משהו מתוק",
-    tagline: "קונדיטוריה | עוגות | מארזים",
-    whatsapp: "972586071206",          // מספר בפורמט בינלאומי, בלי + ובלי מקפים
-    phoneDisplay: "058-607-1206",       // איך המספר מוצג באתר
-    instagram: "",                      // שם משתמש באינסטגרם (בלי @). ריק = לא מוצג
-    location: "אלון מורה",
-    area: "אלון מורה והסביבה",
-    pickupMap: "https://maps.app.goo.gl/v7R2AZDDgrmJAq8A8",   // קישור למיקום האיסוף בגוגל מפות. ריק = לא מוצג
-    hours: "פתוח 24/6 · לא בשבת",
-    // טקסט "אודות" – כל שורה ברשימה היא פסקה
-    about: [
-      "נעים מאוד! קוראים לי עטרה ברנר, נולדתי וגדלתי באלון מורה, ומכאן – מהמטבח הביתי שלי – אני מכינה קינוחים: עוגות, עוגיות, קראמבל קוקיז ומארזים מתוקים, הכול בעבודת יד.",
-      "כל הזמנה נאפית טרייה במיוחד בשבילכם, עם חומרי גלם טובים והרבה אהבה – בדיוק כמו בבית. כל המוצרים כשרים למהדרין חלב ישראל.",
-      "אשמח להיות חלק מהרגעים המתוקים שלכם – ימי הולדת, אירועים, שבתות, או סתם כי בא לכם משהו מתוק :)"
-    ]
+    name: {{ S.business.name | jsonify }},
+    whatsapp: {{ S.contact.whatsapp | strip | jsonify }}
   },
 
-  // ---------- פרטים משפטיים (מופיעים בתחתית כל עמוד ובעמודי המדיניות) ----------
-  // שדה ריק ("") מוצג באתר כסימון צהוב "להשלמה" – כדי שלא ישכחו למלא.
-  legal: {
-    ownerName: "עטרה ברנר",          // שם בעלת העסק, למשל "ישראלה ישראלי"
-    osekNumber: "212820229",         // מספר עוסק
-    osekStatus: "פטור",         // "פטור" או "מורשה" (במורשה יוצג "המחירים כוללים מע״מ")
-    email: "",              // מייל ליצירת קשר. ריק = לא מוצג (אפשר להשאיר ריק)
-    orderLeadTime: "3 ימים",      // כמה זמן מראש להזמין, למשל "3 ימים"
-    // תנאי ביטול – כל שורה ברשימה היא סעיף. למשל:
-    // "ביטול ללא עלות עד 3 ימים לפני מועד האיסוף.",
-    cancellation: [
-      "ביטול ללא עלות עד יום לפני מועד האיסוף או המשלוח."
-    ],
-    delivery: "איסוף ומשלוחים באלון מורה והסביבה, בתיאום מראש.",
-    deliveryFee: "בהתאם למיקום",        // עלות משלוח, למשל "20 ₪", או "ללא עלות"
-    pickupAccessibility: "מקום האיסוף נגיש.",// נגישות מקום האיסוף, למשל "איסוף מפתח הבית, ללא מדרגות"
-    policyDate: "18.10.2026" // תאריך עדכון אחרון של עמודי המדיניות וההצהרה
-  },
-
-  // ---------- המוצרים ----------
-  // לחיצה על תמונה פותחת כרטיס מוצר עם האפשרויות, ומשם מוסיפים לסל.
-  //   images   – תמונה אחת או יותר מהתיקייה images/products
-  //   options  – גדלים / כמויות. כל אחת עם name ו-price (מספר, בלי ₪)
-  //              label = תווית ורודה (למשל "מבצע")
-  //   flavors  – רשימת טעמים לבחירה (לא חובה). flavorsTitle = הכותרת שלה
-  //   flavorImages – איזו תמונה להציג לכל טעם (לא חובה)
-  //   image (בתוך אפשרות) – איזו תמונה להציג כשבוחרים את האפשרות (לא חובה)
-  //   priceOnRequest: true – בלי מחיר קבוע; נכנס לסל "לתיאום מחיר"
-  //   note     – שורת הסבר קטנה בכרטיס (לא חובה)
-  //   box: true – המוצר "מארזים": הכרטיס מוביל להרכבת מארז
-  products: [
-    { name: "טריקולד", images: ["tricolad.webp"],
-      options: [
-        { name: "פס", price: 100 },
-        { name: "עיגול קוטר 20", price: 200 },
-        { name: "עיגול קוטר 26", price: 300 }
-      ] },
-    { name: "שמרים", images: ["shmarim.webp"],
-      flavorsTitle: "מילוי", flavors: ["שוקולד", "לוטוס"],
-      options: [
-        { name: "פס", price: 45 }
-      ] },
-    { name: "עוגת גבינה פירורים", images: ["cheesecake-crumble.webp", "cheese-heart.webp"],
-      options: [
-        { name: "לב זוגי", price: 40, image: "cheese-heart.webp" },
-        { name: "פס", price: 70 },
-        { name: "עיגול קוטר 20", price: 140 },
-        { name: "עיגול קוטר 26", price: 210 }
-      ] },
-    { name: "פאי פקאן / שוקולד", images: ["pecan-pie.webp", "chocolate-pie.webp"],
-      flavorsTitle: "טעם", flavors: ["פקאן", "שוקולד"],
-      flavorImages: { "פקאן": "pecan-pie.webp", "שוקולד": "chocolate-pie.webp" },
-      options: [
-        { name: "עיגול קוטר 24", price: 75 },
-        { name: "2 יחידות", price: 140, label: "מבצע" }
-      ] },
-    { name: "מוס ריבת חלב", images: ["dulce-mousse.webp"],
-      options: [
-        { name: "פס", price: 100 },
-        { name: "עיגול קוטר 20", price: 200 },
-        { name: "עיגול קוטר 26", price: 300 }
-      ] },
-    { name: "קראמבל קוקיז", images: ["crumbl-cookies.webp"],
-      flavorsTitle: "טעם", flavors: CRUMBL_FLAVORS,
-      options: [
-        { name: "עוגייה אחת", price: 13 }
-      ] },
-    { name: "אמסטרדם", images: ["amsterdam.webp"],
-      options: [
-        { name: "10 יחידות", price: 45 },
-        { name: "20 יחידות", price: 85 }
-      ] },
-    { name: "פחזניות", images: ["profiteroles.webp"],
-      options: [
-        { name: "10 יחידות", price: 50 }
-      ] },
-    { name: "בראוניז", images: ["brownies.webp"],
-      options: [
-        { name: "10 יחידות", price: 45 },
-        { name: "20 יחידות", price: 85 }
-      ] },
-    { name: "אלפחורס", images: ["alfajores.webp"],
-      options: [
-        { name: "10 יחידות", price: 45 },
-        { name: "20 יחידות", price: 85 }
-      ] },
-    { name: "שוקולד צ'יפס", images: ["chocolate-chip.webp"],
-      options: [
-        { name: "10 יחידות", price: 45 },
-        { name: "20 יחידות", price: 85 }
-      ] },
-    { name: "מגולגלות תמרים", images: ["date-rolls.webp"],
-      note: "פרווה.",
-      options: [
-        { name: "12 יחידות", price: 38 }
-      ] },
-    { name: "מגולגלות שוקולד", images: ["chocolate-rolls.webp"],
-      note: "חלבי.",
-      options: [
-        { name: "10 יחידות", price: 50 }
-      ] },
-    { name: "מארזים", images: ["boxes.webp"], box: true },
-    { name: "קאפקייקס ממותגים", images: ["branded-cupcakes.webp"], priceOnRequest: true,
-      note: "המחיר לפי כמות – נתאם בוואטסאפ." },
-    { name: "טארטלטים", images: ["tartlets.webp"], priceOnRequest: true,
-      flavorsTitle: "טעם", flavors: ["שוקולד", "פקאן"],
-      note: "המחיר לפי כמות – נתאם בוואטסאפ." },
-    { name: "קינוחי כוסות", images: ["cup-desserts.webp"], priceOnRequest: true,
-      flavorsTitle: "טעם", flavors: ["לוטוס", "פקאן וקפה", "ריבת חלב", "מוס שוקולד", "גבינה פירורים", "קינדר"],
-      note: "לוטוס ופקאן וקפה – בפרווה או בחלבי. גבינה פירורים וקינדר – בחלבי. המחיר לפי כמות – נתאם בוואטסאפ." },
-    { name: "כדורי שוקולד", images: ["chocolate-balls.webp"], priceOnRequest: true,
-      note: "המחיר לפי כמות – נתאם בוואטסאפ." }
+  // one list per category, in the same order as on the page
+  groups: [
+    {%- for list in catalog_lists %}
+    [
+      {%- for p in list %}
+      {%- include product-images.html product=p %}
+      {%- comment %} photos of a size / flavour join the list, so choosing it can show its photo {% endcomment %}
+      {%- assign p_extra = "" | split: "" %}
+      {%- if p.variations %}{% assign p_extra = p_extra | concat: p.variations %}{% endif %}
+      {%- if p.flavors %}{% assign p_extra = p_extra | concat: p.flavors %}{% endif %}
+      {%- for x in p_extra %}
+      {%- capture x_img %}{% include src.html src=x.image %}{% endcapture %}
+      {%- if x_img != "" %}{% unless pimgs contains x_img %}{% assign pimgs = pimgs | push: x_img %}{% endunless %}{% endif %}
+      {%- endfor %}
+      {%- if p.flavors_from_crumbl %}{% assign p_flavors = BB.crumbl_flavors %}{% else %}{% assign p_flavors = p.flavors | map: "name" | compact %}{% endif %}
+      {
+        name: {{ p.name | jsonify }},
+        images: {{ pimgs | jsonify }},
+        price: {% if p.price != nil and p.price != "" %}{{ p.price | plus: 0 }}{% else %}null{% endif %},
+        options: [
+          {%- for o in p.variations %}
+          {%- capture o_img %}{% include src.html src=o.image %}{% endcapture %}
+          { name: {{ o.name | default: "" | jsonify }}, price: {% if o.price != nil and o.price != "" %}{{ o.price | plus: 0 }}{% else %}null{% endif %}, label: {{ o.label | default: "" | jsonify }}, note: {{ o.note | default: "" | jsonify }}, image: {{ o_img | jsonify }} }{% unless forloop.last %},{% endunless %}
+          {%- endfor %}
+        ],
+        flavorsTitle: {{ p.flavors_title | default: "טעם" | jsonify }},
+        flavors: {% if p_flavors.size > 0 %}{{ p_flavors | jsonify }}{% else %}null{% endif %},
+        flavorImages: {
+          {%- for f in p.flavors %}{% if f.image != nil and f.image != "" %}
+          {%- capture f_img %}{% include src.html src=f.image %}{% endcapture %}
+          {{ f.name | jsonify }}: {{ f_img | jsonify }},
+          {%- endif %}{% endfor %}
+        },
+        note: {{ p.description | default: "" | jsonify }},
+        box: {% if p.box_card %}true{% else %}false{% endif %}
+      }{% unless forloop.last %},{% endunless %}
+      {%- endfor %}
+    ]{% unless forloop.last %},{% endunless %}
+    {%- endfor %}
   ],
 
-  // ---------- עוד אצלנו (מוצרים בלי תמונה) ----------
-  extras: [
-    { name: "הדפסה על דפים", flavorsTitle: "סוג הדף", flavors: ["דף סוכר", "דף טרנספר"],
-      options: [
-        { name: "דף בגודל A4", price: 40 }
-      ] },
-    { name: "קינוחים אישיים", priceOnRequest: true,
-      flavorsTitle: "קינוח", flavors: ["סופלה", "קראמבל תפוחים"],
-      note: "המחיר לפי כמות – נתאם בוואטסאפ." }
-  ],
-
-  // ---------- המארזים ----------
-  crumblFlavors: CRUMBL_FLAVORS,
-  cookieTypes: ["אלפחורס", "אמסטרדם", "שוקולד צ'יפס", "בראוניז"],
-  maxCookies: 2,          // כמה סוגי עוגיות אפשר לבחור במארז
-
+  // "הרכיבו מארז"
+  crumblFlavors: {% if BB.crumbl_flavors %}{{ BB.crumbl_flavors | jsonify }}{% else %}[]{% endif %},
+  cookieTypes: {% if BB.cookie_types %}{{ BB.cookie_types | jsonify }}{% else %}[]{% endif %},
+  maxCookies: {{ BB.max_cookies | default: 0 | plus: 0 }},
   boxes: [
+    {%- for box in catalog_boxes %}
     {
-      id: "medium",
-      name: "מארז בינוני",
-      price: 130,
-      image: "box-medium.webp",
-      imageShape: "square",          // צורת התמונה: "square" = ריבוע, "tall" = מלבן לגובה
-      crumblCount: 3,
-      contents: [
-        { title: "3 קראמבל קוקיז", text: CRUMBL_FLAVORS.join(" · ") },
-        { title: "עוגיות לבחירה – עד 2 סוגים", text: "אלפחורס · אמסטרדם · שוקולד צ'יפס · בראוניז" },
-        { title: "עוגה אישית לבחירה", text: "גבינה פירורים · מוס ריבת חלב (טריקולד – בתוספת 10 ₪)" }
-      ],
-      // אפשרויות העוגה בטופס "הרכיבו מארז". extra = תוספת מחיר
+      id: {{ box.slug | jsonify }},
+      name: {{ box.name | jsonify }},
+      price: {{ box.price | default: 0 | plus: 0 }},
+      crumblCount: {{ box.crumbl_count | default: 0 | plus: 0 }},
+      cookies: {% if box.cookie_choice == false %}false{% else %}true{% endif %},
+      cakeTitle: {{ box.cake_title | default: "עוגה" | jsonify }},
       cakes: [
-        { name: "גבינה פירורים", extra: 0 },
-        { name: "מוס ריבת חלב", extra: 0 },
-        { name: "טריקולד", extra: 10 }
+        {%- for c in box.cakes %}
+        { name: {{ c.name | jsonify }}, extra: {{ c.extra | default: 0 | plus: 0 }} }{% unless forloop.last %},{% endunless %}
+        {%- endfor %}
       ]
-    },
-    {
-      id: "large",
-      name: "מארז גדול",
-      price: 230,
-      image: "box-large.webp",
-      imageShape: "tall",
-      crumblCount: 4,
-      contents: [
-        { title: "4 קראמבל קוקיז", text: CRUMBL_FLAVORS.join(" · ") },
-        { title: "עוגיות לבחירה – עד 2 סוגים, כמות כפולה", highlight: "כפולה", text: "אלפחורס · אמסטרדם · שוקולד צ'יפס · בראוניז" },
-        { title: "עוגה משפחתית לבחירה", highlight: "משפחתית", text: "גבינה פירורים · טריקולד · מוס ריבת חלב" }
-      ],
-      cakes: [
-        { name: "גבינה פירורים", extra: 0 },
-        { name: "טריקולד", extra: 0 },
-        { name: "מוס ריבת חלב", extra: 0 }
-      ]
-    }
+    }{% unless forloop.last %},{% endunless %}
+    {%- endfor %}
   ]
 };

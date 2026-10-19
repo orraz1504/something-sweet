@@ -1,10 +1,9 @@
-/* משהו מתוק – home page: products, product card, basket, box builder.
-   Everything is built from data.js. No need to edit this file to change prices. */
+/* משהו מתוק – home page: product card, basket, box builder.
+   The product and box cards are written into index.html by Jekyll; this file adds the
+   interactive parts, using the same data from data.js. No need to edit it to change prices. */
 (function () {
   "use strict";
 
-  var B = SITE.business;
-  var IMG_DIR = "images/products/";
   var el = Sweet.el, svgUse = Sweet.svgUse, waLink = Sweet.waLink, shekel = Sweet.shekel;
   var calm = function () {
     return matchMedia("(prefers-reduced-motion: reduce)").matches ||
@@ -22,27 +21,6 @@
       img.addEventListener("load", ok, { once: true });
       img.addEventListener("error", fail, { once: true });
     }
-  }
-
-  function photo(name, file, alt, w, h) {
-    var holder = el("div", { class: "ph", "data-name": name });
-    var img = el("img", { alt: alt, width: w || 600, height: h || w || 600, decoding: "async", loading: "lazy" });
-    holder.appendChild(img);
-    img.addEventListener("load", function () { holder.classList.add("has-img"); }, { once: true });
-    img.addEventListener("error", function () { img.remove(); }, { once: true });
-    img.src = IMG_DIR + file;
-    return holder;
-  }
-
-  // "החל מ-100 ₪" / "מחיר בתיאום" / "130–230 ₪"
-  function priceFrom(p) {
-    if (p.box) {
-      var prices = SITE.boxes.map(function (b) { return b.price; });
-      return Math.min.apply(null, prices) + "–" + shekel(Math.max.apply(null, prices));
-    }
-    if (p.priceOnRequest || !p.options || !p.options.length) return "מחיר בתיאום";
-    var min = Math.min.apply(null, p.options.map(function (o) { return o.price; }));
-    return p.options.length > 1 ? "החל מ-" + shekel(min) : shekel(min);
   }
 
   function chip(type, name, value, text, small, checked) {
@@ -236,46 +214,15 @@
   });
 
   // ======================================================
-  //   Products gallery
+  //   Product cards (rendered by Jekyll)
   // ======================================================
-  var ROT = [-2, 1.5, -1, 2, 1, -1.5, 2, -2, 1.5, -1, -2, 1, 2, -1.5, 1, -1];
-  var gallery = document.getElementById("gallery");
+  document.querySelectorAll(".ph img").forEach(watchImage);
 
-  SITE.products.forEach(function (p, i) {
-    var deco = null;
-    if (i % 5 === 1) deco = el("span", { class: "tape", "aria-hidden": "true" });
-    else if (i % 7 === 5) deco = el("span", { class: "pin", "aria-hidden": "true" });
-
-    // the photo is part of the button, whose text already names the product -> alt=""
-    var card = el("span", { class: "polaroid" }, [
-      deco,
-      photo(p.name, p.images[0], ""),
-      el("span", { class: "polaroid-label" }, [
-        el("span", { class: "pl-name", text: p.name }),
-        el("span", { class: "pl-price", text: priceFrom(p) })
-      ])
-    ]);
-    var btn = el("button", {
-      type: "button",
-      class: "gallery-btn",
-      style: "--rot:" + ROT[i % ROT.length] + "deg",
-      "aria-haspopup": "dialog"
-    }, [card, el("span", { class: "sr-only", text: " – לפרטים ולהוספה לסל" })]);
-    btn.addEventListener("click", function () { openProduct(SITE.products, i); });
-    gallery.appendChild(el("li", { class: "reveal" }, [btn]));
-  });
-
-  // items without a photo
-  var extrasList = document.getElementById("extras");
-  SITE.extras.forEach(function (p, i) {
-    var btn = el("button", { type: "button", class: "extra-btn", "aria-haspopup": "dialog" }, [
-      el("span", { class: "extra-name", text: p.name }),
-      p.flavors ? el("span", { class: "extra-sub", text: p.flavors.join(" · ") }) : null,
-      el("span", { class: "extra-price", text: priceFrom(p) }),
-      el("span", { class: "sr-only", text: " – לפרטים ולהוספה לסל" })
-    ]);
-    btn.addEventListener("click", function () { openProduct(SITE.extras, i); });
-    extrasList.appendChild(el("li", { class: "reveal" }, [btn]));
+  document.querySelectorAll("[data-group][data-index]").forEach(function (btn) {
+    var list = SITE.groups[+btn.getAttribute("data-group")];
+    var i = +btn.getAttribute("data-index");
+    if (!list || !list[i]) return;
+    btn.addEventListener("click", function () { openProduct(list, i); });
   });
 
   // ======================================================
@@ -287,7 +234,7 @@
   var pdPh = pd.querySelector(".pd-ph");
   var pdThumbs = pd.querySelector(".pd-thumbs");
   var pdQty = document.getElementById("pd-qty");
-  var pdList = SITE.products, pdIndex = 0;
+  var pdList = SITE.groups[0] || [], pdIndex = 0;
 
   function showImage(p, idx) {
     pdPh.className = "ph pd-ph";
@@ -298,13 +245,14 @@
       width: 1000, height: 1000
     });
     pdPh.appendChild(img);
-    img.src = IMG_DIR + p.images[idx];
+    img.src = p.images[idx];
     watchImage(img);
     pdThumbs.querySelectorAll("button").forEach(function (b, j) { b.setAttribute("aria-pressed", String(j === idx)); });
   }
 
+  // the chosen size; a product with only a base price acts as one nameless option
   function currentOption(p) {
-    if (!p.options || !p.options.length) return null;
+    if (!p.options || !p.options.length) return p.price != null ? { name: "", price: p.price } : null;
     var c = pdForm.querySelector('input[name="pd-option"]:checked');
     return p.options[c ? +c.value : 0];
   }
@@ -328,7 +276,7 @@
     var p = pdList[pdIndex];
     if (p.box) return;
     var o = currentOption(p);
-    document.getElementById("pd-add-text").textContent = p.priceOnRequest || !o
+    document.getElementById("pd-add-text").textContent = !o || o.price == null
       ? "הוספה לסל (מחיר בתיאום)"
       : "הוספה לסל · " + shekel(o.price * qtyValue());
   }
@@ -351,7 +299,7 @@
     if (hasImages && p.images.length > 1) {
       p.images.forEach(function (f, j) {
         var t = el("button", { type: "button", class: "pd-thumb", "aria-label": "תמונה " + (j + 1) }, [
-          el("img", { src: IMG_DIR + f, alt: "", width: 120, height: 120 })
+          el("img", { src: f, alt: "", width: 120, height: 120, loading: "lazy" })
         ]);
         t.addEventListener("click", function () { showImage(p, j); });
         pdThumbs.appendChild(t);
@@ -367,7 +315,8 @@
     document.getElementById("pd-options-wrap").hidden = !hasOptions;
     if (hasOptions) {
       p.options.forEach(function (o, j) {
-        var c = chip("radio", "pd-option", j, (o.label ? o.label + " · " : "") + o.name, shekel(o.price), j === 0);
+        var small = (o.price != null ? shekel(o.price) : "בתיאום") + (o.note ? " · " + o.note : "");
+        var c = chip("radio", "pd-option", j, (o.label ? o.label + " · " : "") + o.name, small, j === 0);
         if (o.label) c.classList.add("chip-deal");
         optWrap.appendChild(c);
       });
@@ -429,7 +378,7 @@
       name: p.name,
       option: o ? (o.label ? o.label + " " : "") + o.name : "",
       flavor: fl ? fl.value : "",
-      price: p.priceOnRequest || !o ? null : o.price,
+      price: o && o.price != null ? o.price : null,
       qty: qtyValue(),
       details: []
     });
@@ -452,55 +401,11 @@
   // ======================================================
   //   Boxes + builder
   // ======================================================
-  var boxList = document.getElementById("box-list");
-
-  function callout(c) {
-    var title = el("h4");
-    if (c.highlight && c.title.indexOf(c.highlight) > -1) {
-      var parts = c.title.split(c.highlight);
-      title.appendChild(document.createTextNode(parts[0]));
-      title.appendChild(el("em", { text: c.highlight }));
-      title.appendChild(document.createTextNode(parts.slice(1).join(c.highlight)));
-    } else {
-      title.textContent = c.title;
-    }
-    return el("div", { class: "callout" }, [title, el("p", { text: c.text }), svgUse("arrow", "arrow")]);
-  }
-
-  SITE.boxes.forEach(function (box, i) {
-    var titleId = "box-title-" + box.id;
-    var label = el("figcaption", { class: "polaroid-label" }, [
-      el("h3", { class: "box-name", id: titleId, text: box.name }),
-      el("span", { class: "price", text: shekel(box.price) })
-    ]);
-    var fig = el("figure", { class: "box-photo" + (box.imageShape === "tall" ? " tall" : ""), style: "--rot:" + (i % 2 ? 1.5 : -1.5) + "deg" }, [
-      el("div", { class: "polaroid" }, [
-        i % 2 ? null : el("span", { class: "tape", "aria-hidden": "true" }),
-        photo(box.name, box.image, box.name + " – " + box.contents.map(function (c) { return c.title; }).join(", "),
-          box.imageShape === "tall" ? 900 : 1000, box.imageShape === "tall" ? 1200 : 1000),
-        label
-      ])
-    ]);
-
-    // first item on the left of the photo, the rest on the right (like the printed menu)
-    var info = el("div", { class: "box-info" }, [
-      el("div", { class: "box-side box-side-left" }, [callout(box.contents[0])]),
-      el("div", { class: "box-side box-side-right" }, box.contents.slice(1).map(callout))
-    ]);
-
-    var buildBtn = el("a", {
-      class: "btn btn-primary btn-lg", href: "#builder", "data-size": box.id,
-      "aria-controls": "builder", "aria-expanded": "false", "aria-describedby": titleId
-    }, [svgUse("i-basket"), "בחירת תכולה והוספה לסל"]);
+  document.querySelectorAll("#box-list [data-size]").forEach(function (buildBtn) {
     buildBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      openBuilder(box.id);
+      openBuilder(buildBtn.getAttribute("data-size"));
     });
-
-    boxList.appendChild(el("article", {
-      class: "box-card box-" + box.id + " reveal",
-      "aria-labelledby": titleId
-    }, [fig, info, el("div", { class: "box-actions" }, [buildBtn])]));
   });
 
   var form = document.getElementById("builder");
@@ -537,6 +442,8 @@
       : "(עד " + MAX_COOKIES + " סוגים)";
   }
 
+  function hasCookies(box) { return box.cookies && SITE.cookieTypes.length > 0; }
+
   function getBox() {
     var checked = form.querySelector('input[name="size"]:checked');
     var id = checked ? checked.value : SITE.boxes[0].id;
@@ -550,7 +457,12 @@
     var prev = Array.prototype.map.call(crumblWrap.querySelectorAll("select"), function (s) { return s.value; });
     crumblWrap.textContent = "";
     crumblHint.textContent = "(" + box.crumblCount + " יחידות)";
-    for (var k = 0; k < box.crumblCount; k++) {
+    var crumblCount = SITE.crumblFlavors.length ? box.crumblCount : 0;
+    // a part of the box that is empty in the settings is left out of the form
+    crumblWrap.closest("fieldset").hidden = !crumblCount;
+    cookieWrap.closest("fieldset").hidden = !hasCookies(box);
+    cakeWrap.closest("fieldset").hidden = !box.cakes.length;
+    for (var k = 0; k < crumblCount; k++) {
       var sel = el("select", { "aria-label": "טעם קראמבל קוקיז " + (k + 1) });
       SITE.crumblFlavors.forEach(function (f) { sel.appendChild(el("option", { value: f, text: f })); });
       sel.value = prev[k] || SITE.crumblFlavors[k % SITE.crumblFlavors.length];
@@ -561,7 +473,7 @@
     var prevCake = form.querySelector('input[name="cake"]:checked');
     prevCake = prevCake ? prevCake.value : null;
     cakeWrap.textContent = "";
-    cakeLegend.textContent = box.id === "large" ? "עוגה משפחתית לבחירה" : "עוגה אישית לבחירה";
+    cakeLegend.textContent = box.cakeTitle + " לבחירה";
     var hasPrev = box.cakes.some(function (c) { return c.name === prevCake; });
     box.cakes.forEach(function (c, i) {
       cakeWrap.appendChild(chip("radio", "cake", c.name, c.name,
@@ -573,13 +485,14 @@
 
   function getCake(box) {
     var checked = form.querySelector('input[name="cake"]:checked');
-    var name = checked ? checked.value : box.cakes[0].name;
-    return box.cakes.filter(function (c) { return c.name === name; })[0] || box.cakes[0];
+    var name = checked ? checked.value : (box.cakes[0] || {}).name;
+    return box.cakes.filter(function (c) { return c.name === name; })[0] || box.cakes[0] || null;
   }
 
   function updateTotal() {
     var box = getBox();
-    totalEl.textContent = shekel(box.price + getCake(box).extra);
+    var cake = getCake(box);
+    totalEl.textContent = shekel(box.price + (cake ? cake.extra : 0));
   }
 
   // The builder stays hidden until a box is chosen.
@@ -621,13 +534,13 @@
     var notes = document.getElementById("b-notes").value.trim();
 
     var details = [
-      "קראמבל קוקיז: " + crumbl.join(", "),
-      "עוגיות: " + (cookies.length ? cookies.join(", ") : "לבחירתך"),
-      (box.id === "large" ? "עוגה משפחתית" : "עוגה אישית") + ": " + cake.name + (cake.extra ? " (+" + shekel(cake.extra) + ")" : "")
-    ];
+      crumbl.length ? "קראמבל קוקיז: " + crumbl.join(", ") : null,
+      hasCookies(box) ? "עוגיות: " + (cookies.length ? cookies.join(", ") : "לבחירתך") : null,
+      cake ? box.cakeTitle + ": " + cake.name + (cake.extra ? " (+" + shekel(cake.extra) + ")" : "") : null
+    ].filter(Boolean);
     if (notes) details.push("ברכה / הערות: " + notes);
 
-    addToBasket({ name: box.name, option: "", flavor: "", price: box.price + cake.extra, qty: 1, details: details });
+    addToBasket({ name: box.name, option: "", flavor: "", price: box.price + (cake ? cake.extra : 0), qty: 1, details: details });
     document.getElementById("b-notes").value = "";
     checkedCookies().forEach(function (c) { c.checked = false; });
     updateCookieLimit();
@@ -635,13 +548,7 @@
     document.getElementById("boxes").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" });
   });
 
-  renderBoxOptions();
+  if (SITE.boxes.length) renderBoxOptions();
   updateCookieLimit();
   renderBasket();
-
-  // ---------- About ----------
-  var aboutBox = document.getElementById("about-text");
-  B.about.forEach(function (text) { aboutBox.appendChild(el("p", { text: text })); });
-
-  document.getElementById("area-text").textContent = B.area;
 })();

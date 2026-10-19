@@ -1,0 +1,33 @@
+{%- comment -%}
+  Puts the products in display order, grouped by category. Used by index.html (the HTML)
+  and by data.js (the same lists for the product card), so both always match.
+    catalog_lists  – one list of products per category
+    catalog_groups – the category of each list (nil = no categories defined yet)
+  Hidden products are left out. A product whose category was deleted joins the first category.
+{%- endcomment -%}
+{%- assign catalog_products = site.products | where_exp: "p", "p.visible != false" | sort: "order", "last" -%}
+{%- assign catalog_cats = site.product_groups | sort: "order", "last" -%}
+{%- assign catalog_slugs = catalog_cats | map: "slug" -%}
+{%- assign catalog_lists = "" | split: "" -%}
+{%- assign catalog_groups = "" | split: "" -%}
+{%- if catalog_cats.size == 0 -%}
+  {%- assign catalog_lists = catalog_lists | push: catalog_products -%}
+  {%- assign catalog_groups = catalog_groups | push: nil -%}
+{%- else -%}
+  {%- for cat in catalog_cats -%}
+    {%- assign cat_items = "" | split: "" -%}
+    {%- for p in catalog_products -%}
+      {%- assign p_cat = p.category | split: "/" | last | split: "." | first -%}
+      {%- if p_cat == cat.slug -%}
+        {%- assign cat_items = cat_items | push: p -%}
+      {%- elsif forloop.parentloop.first -%}
+        {%- unless catalog_slugs contains p_cat -%}{%- assign cat_items = cat_items | push: p -%}{%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if cat_items.size > 0 -%}
+      {%- assign catalog_lists = catalog_lists | push: cat_items -%}
+      {%- assign catalog_groups = catalog_groups | push: cat -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+{%- assign catalog_boxes = site.boxes | where_exp: "b", "b.visible != false" | sort: "order", "last" -%}

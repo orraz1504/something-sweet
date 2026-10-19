@@ -1,0 +1,7 @@
+{%- comment -%}
+  Image path from the CMS ("/images/products/x.webp") -> relative "images/products/x.webp",
+  so the site works under any GitHub Pages address. Full URLs are kept as they are.
+{%- endcomment -%}
+{%- assign src_value = include.src | default: "" | strip -%}
+{%- assign src_first = src_value | slice: 0 -%}
+{%- if src_first == "/" -%}{{ src_value | slice: 1, 1000 }}{%- else -%}{{ src_value }}{%- endif -%}

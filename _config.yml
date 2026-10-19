@@ -1,0 +1,21 @@
+# Jekyll settings for GitHub Pages (built automatically on every commit – no Actions needed).
+# The site content itself is edited in Pages CMS (see .pages.yml and מדריך-עריכה.md).
+lang: he
+markdown: kramdown
+
+collections:
+  products:
+    output: false
+  product_groups:
+    output: false
+  boxes:
+    output: false
+
+exclude:
+  - README.md
+  - מדריך-עריכה.md
+  - optimize-images.sh
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor

@@ -1,7 +1,7 @@
 ---
 name: "מארז גדול"
 price: 230
-image: "/images/products/box-large.webp"
+image: "/images/site/box-large.webp"
 image_shape: "tall"
 visible: true
 order: 2

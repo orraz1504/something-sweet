@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ממיר תמונות JPG/PNG מהתיקייה images/originals לפורמט WebP (רוחב מקסימלי 1200px)
-# ושומר אותן ב-images/products עם אותו שם קובץ.
+# ושומר אותן ב-images/products עם אותו שם קובץ
+# (חוץ מהתמונה הראשית והמארזים – hero, box-medium, box-large – שנשמרות ב-images/site).
 # אופציונלי לגמרי – האתר עובד גם בלי זה.
 #
 # שימוש:   bash optimize-images.sh
@@ -30,7 +31,10 @@ fi
 count=0
 for f in "$SRC"/*.jpg "$SRC"/*.jpeg "$SRC"/*.png; do
   name="$(basename "${f%.*}")"
-  dest="$OUT/$name.webp"
+  case "$name" in
+    hero|box-medium|box-large) dest="images/site/$name.webp" ;;
+    *) dest="$OUT/$name.webp" ;;
+  esac
   if [ "$TOOL" = cwebp ]; then
     # -resize W 0 keeps aspect ratio; only shrink images wider than MAX
     width=$(sips -g pixelWidth "$f" 2>/dev/null | awk '/pixelWidth/{print $2}' || true)

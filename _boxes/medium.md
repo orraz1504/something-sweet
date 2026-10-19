@@ -1,7 +1,7 @@
 ---
 name: "מארז בינוני"
 price: 130
-image: "/images/products/box-medium.webp"
+image: "/images/site/box-medium.webp"
 image_shape: "square"
 visible: true
 order: 1

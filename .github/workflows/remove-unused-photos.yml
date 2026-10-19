@@ -1,0 +1,52 @@
+# After a product is deleted or its photo replaced in Pages CMS, removes the photos in
+# images/products that nothing on the site uses any more (so the media tab stays tidy).
+# Only that folder is touched, and only files whose name appears nowhere in the site's content or code.
+# The site itself is still built by GitHub Pages directly – this is just a cleanup.
+name: Remove unused product photos
+
+on:
+  push:
+    branches: [main, cms-test]
+    paths: ["_products/**", "_boxes/**", "_data/**"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: remove-unused-photos-${{ github.ref }}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove photos no file refers to
+        run: |
+          unused=()
+          for f in images/products/*; do
+            name="$(basename "$f")"
+            [ "$name" = ".gitkeep" ] && continue
+            # git grep: 0 = used somewhere, 1 = used nowhere, anything else = error -> stop, delete nothing
+            rc=0
+            git grep -qF -- "$name" -- _products _boxes _data _includes _layouts '*.html' '*.css' '*.js' || rc=$?
+            if [ "$rc" -eq 1 ]; then unused+=("$f")
+            elif [ "$rc" -ne 0 ]; then echo "search failed ($rc) – nothing removed"; exit 1; fi
+          done
+          # deleting one product frees one or two photos; many at once means something is wrong
+          if [ "${#unused[@]}" -gt 5 ]; then
+            echo "would remove ${#unused[@]} photos – too many, stopping without removing anything:"
+            printf '  %s\n' "${unused[@]}"
+            exit 1
+          fi
+          for f in "${unused[@]}"; do git rm -q -- "$f"; echo "removed $f"; done
+          echo "REMOVED=${#unused[@]}" >> "$GITHUB_ENV"
+
+      - name: Save
+        if: env.REMOVED != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "Remove $REMOVED unused product photo(s)"
+          for i in 1 2 3; do git pull -q --rebase && git push -q && exit 0; sleep 5; done
+          exit 1

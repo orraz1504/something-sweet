@@ -2,10 +2,12 @@
 # products (add / delete / name, photo, prices) and contact details. Everything else
 # (boxes, categories, texts) is edited in the code.
 # Fields marked "hidden" are not shown, but are kept so a save never loses them.
+# The media tab shows only images/products. A product photo that nothing uses any more
+# is removed automatically after a product change (.github/workflows/remove-unused-photos.yml).
 
 media:
-  input: images
-  output: /images
+  input: images/products
+  output: /images/products
   categories: [image]
   rename: random
 
